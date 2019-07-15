@@ -1,6 +1,7 @@
 package upvest
 
-// https://doc.upvest.co/reference#tenancy
+// TenancyAPI represents Upvest tenancy API
+// For more details, please see https://doc.upvest.co/reference#tenancy
 type TenancyAPI struct {
 	User   *UserService
 	client *Client

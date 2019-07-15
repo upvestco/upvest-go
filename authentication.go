@@ -1,5 +1,6 @@
 package upvest
 
+// AuthProvider interface for authentication mechanisms supported by Upvest API
 type AuthProvider interface {
 	// GetHeaders returns authorization headers (or other info) to be attached to requests.
 	GetHeaders() map[string]string
@@ -12,6 +13,7 @@ type KeyAuth struct {
 	apiPassphrase string
 }
 
+// GetHeaders returns authorization headers for requests as a tenant.
 func (auth KeyAuth) GetHeaders() {
 
 }

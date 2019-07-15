@@ -105,6 +105,26 @@ func NewClient(baseURL string, httpClient *http.Client) *Client {
 	return c
 }
 
+// Get makes an HTTP GET request to Upvest API
+func (c *Client) Get(method, path string, body, v interface{}, auth AuthProvider) error {
+	return c.Call("GET", path, body, v, auth)
+}
+
+// Post makes an HTTP Post request to Upvest API
+func (c *Client) Post(method, path string, body, v interface{}, auth AuthProvider) error {
+	return c.Call("POST", path, body, v, auth)
+}
+
+// Patch makes an HTTP PATCH request to Upvest API
+func (c *Client) Patch(method, path string, body, v interface{}, auth AuthProvider) error {
+	return c.Call("Patch", path, body, v, auth)
+}
+
+// Delete makes an HTTP DELETE request to Upvest API
+func (c *Client) Delete(method, path string, body, v interface{}, auth AuthProvider) error {
+	return c.Call("Delete", path, body, v, auth)
+}
+
 // Call actually does the HTTP request to Upvest API
 func (c *Client) Call(method, path string, body, v interface{}, auth AuthProvider) error {
 	var buf io.ReadWriter
@@ -156,14 +176,14 @@ func (c *Client) Call(method, path string, body, v interface{}, auth AuthProvide
 	return c.decodeResponse(resp, v)
 }
 
-// decodeResponse decodes the JSON response from the Twitter API.
+// decodeResponse decodes the JSON response from the Upvest API.
 // The actual response will be written to the `v` parameter
 func (c *Client) decodeResponse(httpResp *http.Response, v interface{}) error {
 	var resp Response
 	respBody, err := ioutil.ReadAll(httpResp.Body)
 	json.Unmarshal(respBody, &resp)
 
-	if status, _ := resp["status"].(bool); !status || httpResp.StatusCode >= 400 {
+	if httpResp.StatusCode >= 300 {
 		if c.LoggingEnabled {
 			c.Log.Printf("Upvest error: %+v", err)
 		}
@@ -174,15 +194,5 @@ func (c *Client) decodeResponse(httpResp *http.Response, v interface{}) error {
 		c.Log.Printf("Upvest response: %v\n", resp)
 	}
 
-	if data, ok := resp["data"]; ok {
-		switch t := resp["data"].(type) {
-		case map[string]interface{}:
-			return mapstruct(data, v)
-		default:
-			_ = t
-			return mapstruct(resp, v)
-		}
-	}
-	// if response data does not contain data key, map entire response to v
 	return mapstruct(resp, v)
 }
