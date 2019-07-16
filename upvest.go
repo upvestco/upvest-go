@@ -1,15 +1,15 @@
 package upvest
 
 import (
-	"bytes"
 	"encoding/json"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -127,13 +127,9 @@ func (c *Client) Delete(method, path string, body, v interface{}, auth AuthProvi
 
 // Call actually does the HTTP request to Upvest API
 func (c *Client) Call(method, path string, body, v interface{}, auth AuthProvider) error {
-	var buf io.ReadWriter
-	if body != nil {
-		buf = new(bytes.Buffer)
-		err := json.NewEncoder(buf).Encode(body)
-		if err != nil {
-			return err
-		}
+	buf, err := jsonEncode(body)
+	if err != nil {
+		return errors.Wrap(err, "json encoding failed")
 	}
 	u, _ := c.baseURL.Parse(path)
 	req, err := http.NewRequest(method, u.String(), buf)
@@ -142,16 +138,15 @@ func (c *Client) Call(method, path string, body, v interface{}, auth AuthProvide
 		if c.LoggingEnabled {
 			c.Log.Printf("Cannot create Upvest request: %v\n", err)
 		}
-		return err
-	}
-
-	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
+		return errors.Wrap(err, "could not create HTTP request object")
 	}
 
 	// set headers
 	req.Header.Set("User-Agent", userAgent)
-	authHeaders := auth.GetHeaders()
+	authHeaders, err := auth.GetHeaders(method, path, body)
+	if err != nil {
+		log.Fatal(err)
+	}
 	for k, v := range authHeaders {
 		req.Header.Set(k, v)
 	}

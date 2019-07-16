@@ -1,6 +1,12 @@
 package upvest
 
-import "github.com/mitchellh/mapstructure"
+import (
+	"bytes"
+	"encoding/json"
+	"io"
+
+	"github.com/mitchellh/mapstructure"
+)
 
 func mapstruct(data interface{}, v interface{}) error {
 	config := &mapstructure.DecoderConfig{
@@ -14,4 +20,11 @@ func mapstruct(data interface{}, v interface{}) error {
 	}
 	err = decoder.Decode(data)
 	return err
+}
+
+func jsonEncode(data interface{}) (io.ReadWriter, error) {
+	var buf io.ReadWriter
+	buf = new(bytes.Buffer)
+	err := json.NewEncoder(buf).Encode(data)
+	return buf, err
 }
