@@ -32,13 +32,8 @@ const (
 	scope      = "read write echo transaction"
 )
 
-type service struct {
-	client *Client
-}
-
 // Client manages communication with the Upvest API
 type Client struct {
-	common service      // Reuse a single struct instead of allocating one for each service on the heap.
 	client *http.Client // HTTP client used to communicate with the API.
 
 	// the API Key used to authenticate all Upvest API requests
@@ -101,28 +96,7 @@ func NewClient(baseURL string, httpClient *http.Client) *Client {
 		Log:            log.New(os.Stderr, "", log.LstdFlags),
 	}
 
-	c.common.client = c
 	return c
-}
-
-// Get makes an HTTP GET request to Upvest API
-func (c *Client) Get(method, path string, body, v interface{}, auth AuthProvider) error {
-	return c.Call("GET", path, body, v, auth)
-}
-
-// Post makes an HTTP Post request to Upvest API
-func (c *Client) Post(method, path string, body, v interface{}, auth AuthProvider) error {
-	return c.Call("POST", path, body, v, auth)
-}
-
-// Patch makes an HTTP PATCH request to Upvest API
-func (c *Client) Patch(method, path string, body, v interface{}, auth AuthProvider) error {
-	return c.Call("Patch", path, body, v, auth)
-}
-
-// Delete makes an HTTP DELETE request to Upvest API
-func (c *Client) Delete(method, path string, body, v interface{}, auth AuthProvider) error {
-	return c.Call("Delete", path, body, v, auth)
 }
 
 // Call actually does the HTTP request to Upvest API
