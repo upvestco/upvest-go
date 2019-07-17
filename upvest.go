@@ -105,7 +105,12 @@ func (c *Client) Call(method, path string, body, v interface{}, auth AuthProvide
 	if err != nil {
 		return errors.Wrap(err, "json encoding failed")
 	}
-	u, _ := c.baseURL.Parse(path)
+
+	u, err := joinURLs(c.baseURL.String(), apiVersion, path)
+	if err != nil {
+		return errors.Wrap(err, "invalid request path")
+	}
+
 	req, err := http.NewRequest(method, u.String(), buf)
 
 	if err != nil {
@@ -117,10 +122,12 @@ func (c *Client) Call(method, path string, body, v interface{}, auth AuthProvide
 
 	// set headers
 	req.Header.Set("User-Agent", userAgent)
+	// Get the headers from the respectively needed auth provider
 	authHeaders, err := auth.GetHeaders(method, path, body)
 	if err != nil {
 		log.Fatal(err)
 	}
+	// Execute request with authenticated headers
 	for k, v := range authHeaders {
 		req.Header.Set(k, v)
 	}
