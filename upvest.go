@@ -92,7 +92,7 @@ func NewClient(baseURL string, httpClient *http.Client) *Client {
 	c := &Client{
 		client:         httpClient,
 		baseURL:        u,
-		LoggingEnabled: true,
+		LoggingEnabled: false,
 		Log:            log.New(os.Stderr, "", log.LstdFlags),
 	}
 
