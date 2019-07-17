@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/url"
 	"path"
+	"time"
 
 	"github.com/mitchellh/mapstructure"
 )
@@ -46,4 +48,16 @@ func joinURLs(basePath string, paths ...string) (*url.URL, error) {
 	u.Path = result
 
 	return u, nil
+}
+
+func makeTimestamp() int64 {
+	return time.Now().UnixNano() / int64(time.Second)
+}
+
+func randomString(len int) string {
+	bytes := make([]byte, len)
+	for i := 0; i < len; i++ {
+		bytes[i] = byte(65 + rand.Intn(25)) //A=65 and Z = 65+25
+	}
+	return string(bytes)
 }

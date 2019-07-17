@@ -2,26 +2,10 @@ package upvest
 
 import (
 	"fmt"
-	"log"
-	"math/rand"
-	"os"
 	"testing"
 
 	"github.com/google/uuid"
 )
-
-var tenancyTestClient *TenancyAPI
-
-// createTenancyClient creates an Upvest tenant client for testing purposes
-func createTestTenancyClient() {
-	c := NewClient("", nil)
-
-	apiKey := os.Getenv("API_KEY")
-	apiSecret := os.Getenv("API_SECRET")
-	apiPassphrase := os.Getenv("API_PASSPHRASE")
-	log.Printf("\n\n===> key: %s secret: %s passphrase: %s \n\n", apiKey, apiSecret, apiPassphrase)
-	tenancyTestClient = c.NewTenant(apiKey, apiSecret, apiPassphrase)
-}
 
 // Tests an API call to create a user"""
 func TestRegisterUser(t *testing.T) {
@@ -39,16 +23,8 @@ func TestRegisterUser(t *testing.T) {
 	}
 }
 
-func TestMain(m *testing.M) {
-	createTestTenancyClient()
-	code := m.Run()
-	os.Exit(code)
-}
-
-func randomString(len int) string {
-	bytes := make([]byte, len)
-	for i := 0; i < len; i++ {
-		bytes[i] = byte(65 + rand.Intn(25)) //A=65 and Z = 65+25
-	}
-	return string(bytes)
-}
+// func TestMain(m *testing.M) {
+// 	createTestTenancyClient()
+// 	code := m.Run()
+// 	os.Exit(code)
+// }

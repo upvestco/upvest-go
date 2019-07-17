@@ -4,8 +4,8 @@ import (
 	"crypto/hmac"
 	"crypto/sha512"
 	"encoding/hex"
+	"fmt"
 	"io/ioutil"
-	"time"
 )
 
 // Headers represent the HTTP headers sent to Upvest API
@@ -26,10 +26,13 @@ type KeyAuth struct {
 
 // GetHeaders returns authorization headers for requests as a tenant.
 func (auth KeyAuth) GetHeaders(method, path string, body interface{}) (Headers, error) {
+	path1, _ := joinURLs(apiVersion, path, "/")
+	versionedPath := path1.String()
+
 	var headers Headers
-	timestamp := string(time.Now().UnixNano() / 1000000)
+	timestamp := fmt.Sprintf("%d", makeTimestamp())
 	// Compose the message as a concatenation of all info we are sending along with the request
-	message := timestamp + method + apiVersion + path
+	message := timestamp + method + versionedPath
 
 	if body != nil {
 		buf, err := jsonEncode(body)
@@ -41,7 +44,8 @@ func (auth KeyAuth) GetHeaders(method, path string, body interface{}) (Headers, 
 	}
 
 	// Generate signature, in order to prevent manipulation of payload in flight
-	h := hmac.New(sha512.New, []byte(message))
+	h := hmac.New(sha512.New, []byte(auth.apiSecret))
+	h.Write([]byte(message))
 	signature := hex.EncodeToString(h.Sum(nil))
 
 	// Generate message headers
@@ -51,7 +55,7 @@ func (auth KeyAuth) GetHeaders(method, path string, body interface{}) (Headers, 
 		"X-UP-API-Signature":   signature,
 		"X-UP-API-Timestamp":   timestamp,
 		"X-UP-API-Passphrase":  auth.apiPassphrase,
-		"X-UP-API-Signed-Path": apiVersion + path,
+		"X-UP-API-Signed-Path": versionedPath,
 	}
 
 	return headers, nil
