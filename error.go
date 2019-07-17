@@ -3,13 +3,15 @@ package upvest
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 )
 
 var errorTypes = map[int]string{
 	400: "invalid_request_error",
-	401: "authentication_error",
+	401: "authorization_error",
+	403: "authentication_error",
 	409: "duplicate_user",
 	500: "server_error",
 }
@@ -35,7 +37,7 @@ func newAPIError(resp *http.Response) *APIError {
 
 	var upvestErrorResp map[string]interface{}
 	_ = json.Unmarshal(p, &upvestErrorResp)
-
+	log.Printf("==> error.... %s", upvestErrorResp)
 	errorType := "server_error"
 	if err, ok := errorTypes[resp.StatusCode]; ok {
 		errorType = err

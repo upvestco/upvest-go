@@ -9,7 +9,7 @@ type TenancyAPI struct {
 // NewTenant creates a new tenant for interacting with your Upvest tenant
 func (c *Client) NewTenant(apiKey, apiSecret, apiPassphrase string) *TenancyAPI {
 	auth := KeyAuth{apiKey: apiKey, apiSecret: apiSecret, apiPassphrase: apiPassphrase}
-	svc := service{c, auth} // Reuse a single struct instead of allocating one for each service on the heap
+	svc := service{c, auth} // Reuse a single struct instead of allocating one for each service
 	tenant := &TenancyAPI{
 		User: &UserService{svc},
 		// Asset: (*AssetService)(&svc),
