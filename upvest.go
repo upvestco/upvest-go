@@ -32,6 +32,11 @@ const (
 	scope      = "read write echo transaction"
 )
 
+type service struct {
+	client *Client
+	auth   AuthProvider
+}
+
 // Client manages communication with the Upvest API
 type Client struct {
 	client *http.Client // HTTP client used to communicate with the API.
