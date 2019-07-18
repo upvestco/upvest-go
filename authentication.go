@@ -26,7 +26,7 @@ type KeyAuth struct {
 
 // GetHeaders returns authorization headers for requests as a tenant.
 func (auth KeyAuth) GetHeaders(method, path string, body interface{}) (Headers, error) {
-	path1, _ := joinURLs(apiVersion, path, "/")
+	path1, _ := joinURLs(apiVersion, path)
 	versionedPath := path1.String()
 
 	var headers Headers

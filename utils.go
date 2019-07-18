@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"net/url"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/mitchellh/mapstructure"
@@ -43,11 +44,32 @@ func joinURLs(basePath string, paths ...string) (*url.URL, error) {
 
 	p2 := append([]string{u.Path}, paths...)
 
-	result := path.Join(p2...)
+	result := joinPreservingTrailingSlash(p2...)
 
 	u.Path = result
 
 	return u, nil
+}
+
+// JoinPreservingTrailingSlash does a path.Join of the specified elements,
+// preserving any trailing slash on the last non-empty segment
+// credit: https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/util/net/http.go#L40
+func joinPreservingTrailingSlash(elem ...string) string {
+	// do the basic path join
+	result := path.Join(elem...)
+
+	// find the last non-empty segment
+	for i := len(elem) - 1; i >= 0; i-- {
+		if len(elem[i]) > 0 {
+			// if the last segment ended in a slash, ensure our result does as well
+			if strings.HasSuffix(elem[i], "/") && !strings.HasSuffix(result, "/") {
+				result += "/"
+			}
+			break
+		}
+	}
+
+	return result
 }
 
 func makeTimestamp() int64 {

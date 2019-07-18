@@ -111,7 +111,7 @@ func (c *Client) Call(method, path string, body, v interface{}, auth AuthProvide
 		return errors.Wrap(err, "invalid request path")
 	}
 
-	req, err := http.NewRequest(method, u.String()+"/", buf)
+	req, err := http.NewRequest(method, u.String(), buf)
 
 	if err != nil {
 		if c.LoggingEnabled {
