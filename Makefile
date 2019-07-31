@@ -5,7 +5,7 @@ PROJECT = upvest
 PREFIX?=$(shell pwd)
 BUILDTAGS=
 
-.PHONY: clean all fmt vet lint build test static deps docker
+.PHONY: clean all fmt vet lint build test
 .DEFAULT: default
 
 all: clean build fmt lint test vet
@@ -37,10 +37,3 @@ vet:
 clean:
 	@echo "+ $@"
 	@rm -rf reg
-
-deps:
-	@echo "Installing dependencies..."
-	@$(GLIDE) install
-
-docker:
-	@docker build . -t $(PROJECT) -f Dockerfile.test
