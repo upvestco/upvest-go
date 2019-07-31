@@ -109,6 +109,9 @@ func NewClient(baseURL string, httpClient *http.Client) *Client {
 
 // Call actually does the HTTP request to Upvest API
 func (c *Client) Call(method, path string, body, v interface{}, auth AuthProvider) error {
+	if body == nil {
+		body = map[string]string{}
+	}
 	buf, err := jsonEncode(body)
 	if err != nil {
 		return errors.Wrap(err, "json encoding failed")

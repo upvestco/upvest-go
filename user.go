@@ -52,7 +52,8 @@ func (s *UserService) Get(username string) (*User, error) {
 // List returns a list of users.
 // For more details see
 func (s *UserService) List() (*UserList, error) {
-	u := fmt.Sprintf("/tenancy/users/?page_size={%d}", maxPageSize)
+	//u := fmt.Sprintf("/tenancy/users/?page_size=%d", maxPageSize)
+	u := "/tenancy/users/"
 	var allUsers []User
 	users := &UserList{}
 	for {
@@ -65,7 +66,7 @@ func (s *UserService) List() (*UserList, error) {
 		// build new url with params from the Next url
 		url, err := url.Parse(users.Meta.Next)
 		q := url.Query()
-		u = fmt.Sprintf("/tenancy/users/?page_size={%d}&%s", maxPageSize, q.Encode())
+		u = fmt.Sprintf("/tenancy/users/?page_size=%d&%s", maxPageSize, q.Encode())
 		if users.Meta.Next == "" {
 			break
 		}

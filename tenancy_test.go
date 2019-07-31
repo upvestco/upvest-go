@@ -3,6 +3,7 @@ package upvest
 import (
 	"fmt"
 	"log"
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
@@ -54,8 +55,8 @@ func TestListUsers(t *testing.T) {
 	log.Printf("users %v \n", users)
 }
 
-// func TestMain(m *testing.M) {
-// 	createTestTenancyClient()
-// 	code := m.Run()
-// 	os.Exit(code)
-// }
+func TestMain(m *testing.M) {
+	//createStaticUser()
+	code := m.Run()
+	os.Exit(code)
+}

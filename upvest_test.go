@@ -7,8 +7,11 @@ import (
 
 var tenancyTestClient *TenancyAPI
 
+var staticUser *User
+
 func init() {
 	createTestTenancyClient()
+	staticUser, _ = createTestUser()
 }
 
 // createTenancyClient creates an Upvest tenant client for testing purposes
