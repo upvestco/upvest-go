@@ -30,6 +30,9 @@ const (
 	encoding   = "utf-8"
 	grantType  = "password"
 	scope      = "read write echo transaction"
+
+	// maximum page size when retrieving list
+	maxPageSize = 100
 )
 
 type service struct {
@@ -77,8 +80,8 @@ func (v RequestValues) MarshalJSON() ([]byte, error) {
 
 // ListMeta is pagination metadata for paginated responses from the Upvest API
 type ListMeta struct {
-	Previous int `json:"previous"`
-	Next     int `json:"next"`
+	Previous string `json:"previous"`
+	Next     string `json:"next"`
 }
 
 // NewClient creates a new Upvest API client with the given base URL
