@@ -56,8 +56,15 @@ func TestListUsers(t *testing.T) {
 	}
 }
 
-// func TestMain(m *testing.M) {
-// 	createStaticUser()
-// 	code := m.Run()
-// 	os.Exit(code)
-// }
+// Tests an API call to get list of specific number of users
+func TestListNUsers(t *testing.T) {
+	expected := 10
+	users, err := tenancyTestClient.User.ListN(expected)
+	if err != nil {
+		t.Errorf("List Users returned error: %v", err)
+	}
+
+	if len(users.Values) != expected {
+		t.Errorf("Expected greater than %d users, got %d", expected, len(users.Values))
+	}
+}

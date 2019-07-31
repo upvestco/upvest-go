@@ -49,35 +49,69 @@ func (s *UserService) Get(username string) (*User, error) {
 	return user, err
 }
 
-// List returns a list of users.
-// For more details see
+// List returns list of all users.
+// For more details see https://doc.upvest.co/reference#tenancy_user_list
 func (s *UserService) List() (*UserList, error) {
-	//u := fmt.Sprintf("/tenancy/users/?page_size=%d", maxPageSize)
-	u := "/tenancy/users/"
-	var allUsers []User
+	path := "/tenancy/users/"
+	u, _ := url.Parse(path)
+	//q := u.Query()
+	//q.Set("page_size", fmt.Sprintf("%d", maxPageSize))
+	//u.RawQuery = q.Encode()
+
+	var results []User
 	users := &UserList{}
+
 	for {
-		err := s.client.Call("GET", u, nil, users, s.auth)
+		err := s.client.Call("GET", u.String(), nil, users, s.auth)
 		if err != nil {
 			return nil, errors.Wrap(err, "Could not retrieve list of users")
 		}
-		allUsers = append(allUsers, users.Values...)
+		results = append(results, users.Values...)
 
-		// build new url with params from the Next url
-		url, err := url.Parse(users.Meta.Next)
-		q := url.Query()
-		u = fmt.Sprintf("/tenancy/users/?page_size=%d&%s", maxPageSize, q.Encode())
+		// append page_size param to the returned params
+		u1, err := url.Parse(users.Meta.Next)
+		q := u1.Query()
+		q.Set("page_size", string(maxPageSize))
+		u.RawQuery = q.Encode()
 		if users.Meta.Next == "" {
 			break
 		}
 	}
-	return &UserList{Values: allUsers}, nil
+
+	return &UserList{Values: results}, nil
 }
 
-// ListN returns a list of users
-// For more details see
-// func (s *UserService) ListN(count int) (*UserList, error) {
-// 	// go until there's count size is met
-// 	// stop if no next page
-// 	return users, err
-// }
+// ListN returns a specific number of users
+// For more details see https://doc.upvest.co/reference#tenancy_user_list
+func (s *UserService) ListN(count int) (*UserList, error) {
+	path := "/tenancy/users/"
+	u, _ := url.Parse(path)
+	q := u.Query()
+	q.Set("page_size", fmt.Sprintf("%d", maxPageSize))
+	u.RawQuery = q.Encode()
+
+	var results []User
+	users := &UserList{}
+
+	total := 0
+
+	for total <= count {
+		err := s.client.Call("GET", u.String(), nil, users, s.auth)
+		if err != nil {
+			return nil, errors.Wrap(err, "Could not retrieve list of users")
+		}
+		results = append(results, users.Values...)
+		total += len(users.Values)
+
+		// append page_size param to the returned params
+		u1, err := url.Parse(users.Meta.Next)
+		q := u1.Query()
+		q.Set("page_size", string(maxPageSize))
+		u.RawQuery = q.Encode()
+		if users.Meta.Next == "" {
+			break
+		}
+	}
+
+	return &UserList{Values: results}, nil
+}
