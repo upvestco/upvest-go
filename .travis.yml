@@ -1,9 +1,5 @@
 language: go
 sudo: false
-os:
-  - linux
-  - osx
-dist: trusty
 go:
   - "1.9.x"
   - "1.10.x"
