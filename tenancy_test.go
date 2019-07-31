@@ -2,8 +2,6 @@ package upvest
 
 import (
 	"fmt"
-	"log"
-	"os"
 	"testing"
 
 	"github.com/google/uuid"
@@ -48,15 +46,18 @@ func TestGetUser(t *testing.T) {
 
 // Tests an API call to get list of users
 func TestListUsers(t *testing.T) {
+	expected := 10
 	users, err := tenancyTestClient.User.List()
 	if err != nil {
 		t.Errorf("List Users returned error: %v", err)
 	}
-	log.Printf("users %v \n", users)
+	if len(users.Values) < expected {
+		t.Errorf("Expected greater than %d users, got %d", expected, len(users.Values))
+	}
 }
 
-func TestMain(m *testing.M) {
-	//createStaticUser()
-	code := m.Run()
-	os.Exit(code)
-}
+// func TestMain(m *testing.M) {
+// 	createStaticUser()
+// 	code := m.Run()
+// 	os.Exit(code)
+// }
