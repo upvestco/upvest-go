@@ -52,7 +52,8 @@ func (s *UserService) Update(username string, params Params) (*User, error) {
 // For more details https://doc.upvest.co/reference#tenancy_user_create
 func (s *UserService) Delete(username string) error {
 	u := fmt.Sprintf("/tenancy/users/%s", username)
-	err := s.client.Call("DELETE", u, map[string]string{}, nil, s.auth)
+	resp := &Response{}
+	err := s.client.Call("DELETE", u, map[string]string{}, resp, s.auth)
 	return err
 }
 

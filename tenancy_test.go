@@ -62,29 +62,54 @@ func TestListNUsers(t *testing.T) {
 }
 
 // Tests an API call to update a user's password
-func testChangePassword(t *testing.T) {
+func TestChangePassword(t *testing.T) {
 	user, pw := createTestUser()
 	newPassword := randomString(12)
 	username := user.Username
 
-	var params Params
-	params["password"] = pw
+	params := make(Params)
+	params["old_password"] = pw
 	params["new_password"] = newPassword
 
 	user, _ = tenancyTestClient.User.Update(username, params)
 
 	if user.Username != username {
-		t.Errorf("Expected username %s, got %s", username, user.Username)
+		t.Errorf("Expected username %s, got %+v", username, user)
 	}
 }
 
 // Tests an API call to update a user's password
-func testDeleteUser(t *testing.T) {
+func TestDeleteUser(t *testing.T) {
 	user, _ := createTestUser()
 	_ = tenancyTestClient.User.Delete(user.Username)
 	usr, err := tenancyTestClient.User.Get(user.Username)
+	aerr := err.(*APIError)
 
-	if usr != nil && err != nil {
-		t.Errorf("Expected username %s to be deleted, got %v", user.Username, usr)
+	if aerr.StatusCode != 404 {
+		t.Errorf("Expected user not found, got %s", usr.Username)
+	}
+}
+
+// Test to retrive all assets
+func TestListAssets(t *testing.T) {
+	assets, err := tenancyTestClient.Asset.List()
+
+	if err != nil {
+		t.Errorf("List assets returned error: %v", err)
+	}
+
+	asset1 := assets.Values[0]
+	assertions := []bool{
+		asset1.ID == "51bfa4b5-6499-5fe2-998b-5fb3c9403ac7",
+		asset1.Name == "Arweave (internal testnet)",
+		asset1.Symbol == "AR",
+		asset1.Exponent == 12,
+		asset1.Protocol == "arweave_testnet",
+	}
+
+	for _, isValid := range assertions {
+		if !isValid {
+			t.Errorf("Asset structure does not match expected")
+		}
 	}
 }

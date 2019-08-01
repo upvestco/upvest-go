@@ -13,7 +13,7 @@ type Asset struct {
 	ID       string                 `json:"id"`
 	Name     string                 `json:"name"`
 	Symbol   string                 `json:"symbol"`
-	Exponent string                 `json:"exponent"`
+	Exponent int64                  `json:"exponent"`
 	Protocol string                 `json:"protocol"`
 	MetaData map[string]interface{} `json:"metadata"`
 }

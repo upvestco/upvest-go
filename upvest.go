@@ -162,10 +162,11 @@ func (c *Client) decodeResponse(httpResp *http.Response, v interface{}) error {
 	json.Unmarshal(respBody, &resp)
 
 	if httpResp.StatusCode >= 300 {
+		err = newAPIError(httpResp)
 		if c.LoggingEnabled {
 			c.Log.Printf("Upvest error: %+v", err)
 		}
-		return newAPIError(httpResp)
+		return err
 	}
 
 	if c.LoggingEnabled {
