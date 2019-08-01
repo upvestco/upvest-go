@@ -2,7 +2,6 @@ package upvest
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 
 	"github.com/pkg/errors"
@@ -31,7 +30,7 @@ type UserList struct {
 // Create creates a new user
 // For more details https://doc.upvest.co/reference#tenancy_user_create
 func (s *UserService) Create(username, password string) (*User, error) {
-	u := fmt.Sprintf("/tenancy/users/")
+	u := "/tenancy/users/"
 	usr := &User{}
 	data := map[string]string{"username": username, "password": password}
 	err := s.client.Call("POST", u, data, usr, s.auth)
@@ -39,12 +38,29 @@ func (s *UserService) Create(username, password string) (*User, error) {
 	return usr, err
 }
 
+// Update changes user password with the provided password
+// For more details https://doc.upvest.co/reference#tenancy_user_create
+func (s *UserService) Update(username string, params Params) (*User, error) {
+	u := fmt.Sprintf("/tenancy/users/%s", username)
+	usr := &User{}
+	err := s.client.Call("PATCH", u, params, usr, s.auth)
+
+	return usr, err
+}
+
+// Delete permanently deletes a user
+// For more details https://doc.upvest.co/reference#tenancy_user_create
+func (s *UserService) Delete(username string) error {
+	u := fmt.Sprintf("/tenancy/users/%s", username)
+	err := s.client.Call("DELETE", u, map[string]string{}, nil, s.auth)
+	return err
+}
+
 // Get returns the details of a user.
 // For more details see
 func (s *UserService) Get(username string) (*User, error) {
 	u := fmt.Sprintf("/tenancy/users/%s", username)
 	user := &User{}
-	log.Printf("==> %s = %+v", u, s)
 	err := s.client.Call("GET", u, nil, user, s.auth)
 	return user, err
 }
@@ -86,9 +102,9 @@ func (s *UserService) List() (*UserList, error) {
 func (s *UserService) ListN(count int) (*UserList, error) {
 	path := "/tenancy/users/"
 	u, _ := url.Parse(path)
-	q := u.Query()
-	q.Set("page_size", fmt.Sprintf("%d", maxPageSize))
-	u.RawQuery = q.Encode()
+	// q := u.Query()
+	// q.Set("page_size", fmt.Sprintf("%d", maxPageSize))
+	// u.RawQuery = q.Encode()
 
 	var results []User
 	users := &UserList{}

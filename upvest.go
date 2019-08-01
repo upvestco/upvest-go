@@ -66,17 +66,8 @@ type Logger interface {
 // Response represents arbitrary response data
 type Response map[string]interface{}
 
-// RequestValues aliased to url.Values as a workaround
-type RequestValues url.Values
-
-// MarshalJSON to handle custom JSON decoding for RequestValues
-func (v RequestValues) MarshalJSON() ([]byte, error) {
-	m := make(map[string]interface{}, 3)
-	for k, val := range v {
-		m[k] = val[0]
-	}
-	return json.Marshal(m)
-}
+// Params aliased to url.Values as a workaround
+type Params map[string]interface{}
 
 // ListMeta is pagination metadata for paginated responses from the Upvest API
 type ListMeta struct {

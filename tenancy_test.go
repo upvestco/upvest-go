@@ -7,14 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-func createTestUser() (*User, string) {
-	uid, _ := uuid.NewUUID()
-	username := fmt.Sprintf("upvest_test_%s", uid.String())
-	password := randomString(12)
-	user, _ := tenancyTestClient.User.Create(username, password)
-	return user, password
-}
-
 // Tests an API call to create a user"""
 func TestRegisterUser(t *testing.T) {
 	uid, _ := uuid.NewUUID()
@@ -66,5 +58,33 @@ func TestListNUsers(t *testing.T) {
 
 	if len(users.Values) != expected {
 		t.Errorf("Expected greater than %d users, got %d", expected, len(users.Values))
+	}
+}
+
+// Tests an API call to update a user's password
+func testChangePassword(t *testing.T) {
+	user, pw := createTestUser()
+	newPassword := randomString(12)
+	username := user.Username
+
+	var params Params
+	params["password"] = pw
+	params["new_password"] = newPassword
+
+	user, _ = tenancyTestClient.User.Update(username, params)
+
+	if user.Username != username {
+		t.Errorf("Expected username %s, got %s", username, user.Username)
+	}
+}
+
+// Tests an API call to update a user's password
+func testDeleteUser(t *testing.T) {
+	user, _ := createTestUser()
+	_ = tenancyTestClient.User.Delete(user.Username)
+	usr, err := tenancyTestClient.User.Get(user.Username)
+
+	if usr != nil && err != nil {
+		t.Errorf("Expected username %s to be deleted, got %v", user.Username, usr)
 	}
 }

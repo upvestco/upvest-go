@@ -1,8 +1,11 @@
 package upvest
 
 import (
+	"fmt"
 	"log"
 	"os"
+
+	"github.com/google/uuid"
 )
 
 var tenancyTestClient *TenancyAPI
@@ -12,6 +15,14 @@ var staticUser *User
 func init() {
 	createTestTenancyClient()
 	staticUser, _ = createTestUser()
+}
+
+func createTestUser() (*User, string) {
+	uid, _ := uuid.NewUUID()
+	username := fmt.Sprintf("upvest_test_%s", uid.String())
+	password := randomString(12)
+	user, _ := tenancyTestClient.User.Create(username, password)
+	return user, password
 }
 
 // createTenancyClient creates an Upvest tenant client for testing purposes

@@ -44,9 +44,6 @@ func (s *AssetService) Get(assetID string) (*Asset, error) {
 func (s *AssetService) List() (*AssetList, error) {
 	path := "/assets/"
 	u, _ := url.Parse(path)
-	//q := u.Query()
-	//q.Set("page_size", fmt.Sprintf("%d", maxPageSize))
-	//u.RawQuery = q.Encode()
 
 	var results []Asset
 	assets := &AssetList{}
