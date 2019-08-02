@@ -2,6 +2,7 @@ package upvest
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/pkg/errors"
@@ -35,7 +36,9 @@ type AssetList struct {
 func (s *AssetService) Get(assetID string) (*Asset, error) {
 	u := fmt.Sprintf("/assets/%s", assetID)
 	asset := &Asset{}
-	err := s.client.Call("GET", u, nil, asset, s.auth)
+	p := &Params{}
+	p.SetAuthProvider(s.auth)
+	err := s.client.Call(http.MethodGet, u, nil, asset, p)
 	return asset, err
 }
 
@@ -45,11 +48,14 @@ func (s *AssetService) List() (*AssetList, error) {
 	path := "/assets/"
 	u, _ := url.Parse(path)
 
+	p := &Params{}
+	p.SetAuthProvider(s.auth)
+
 	var results []Asset
 	assets := &AssetList{}
 
 	for {
-		err := s.client.Call("GET", u.String(), nil, assets, s.auth)
+		err := s.client.Call(http.MethodGet, u.String(), nil, assets, p)
 		if err != nil {
 			return nil, errors.Wrap(err, "Could not retrieve list of assets")
 		}
@@ -58,7 +64,7 @@ func (s *AssetService) List() (*AssetList, error) {
 		// append page_size param to the returned params
 		u1, err := url.Parse(assets.Meta.Next)
 		q := u1.Query()
-		q.Set("page_size", string(maxPageSize))
+		q.Set("page_size", string(MaxPageSize))
 		u.RawQuery = q.Encode()
 		if assets.Meta.Next == "" {
 			break

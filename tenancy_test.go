@@ -67,7 +67,7 @@ func TestChangePassword(t *testing.T) {
 	newPassword := randomString(12)
 	username := user.Username
 
-	params := make(Params)
+	params := make(RequestParams)
 	params["old_password"] = pw
 	params["new_password"] = newPassword
 

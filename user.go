@@ -2,6 +2,7 @@ package upvest
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/pkg/errors"
@@ -33,17 +34,21 @@ func (s *UserService) Create(username, password string) (*User, error) {
 	u := "/tenancy/users/"
 	usr := &User{}
 	data := map[string]string{"username": username, "password": password}
-	err := s.client.Call("POST", u, data, usr, s.auth)
+	p := &Params{}
+	p.SetAuthProvider(s.auth)
+	err := s.client.Call(http.MethodPost, u, data, usr, p)
 
 	return usr, err
 }
 
 // Update changes user password with the provided password
 // For more details https://doc.upvest.co/reference#tenancy_user_create
-func (s *UserService) Update(username string, params Params) (*User, error) {
+func (s *UserService) Update(username string, rp RequestParams) (*User, error) {
 	u := fmt.Sprintf("/tenancy/users/%s", username)
 	usr := &User{}
-	err := s.client.Call("PATCH", u, params, usr, s.auth)
+	p := &Params{}
+	p.SetAuthProvider(s.auth)
+	err := s.client.Call(http.MethodPatch, u, rp, usr, p)
 
 	return usr, err
 }
@@ -53,7 +58,10 @@ func (s *UserService) Update(username string, params Params) (*User, error) {
 func (s *UserService) Delete(username string) error {
 	u := fmt.Sprintf("/tenancy/users/%s", username)
 	resp := &Response{}
-	err := s.client.Call("DELETE", u, map[string]string{}, resp, s.auth)
+	p := &Params{}
+	p.SetAuthProvider(s.auth)
+	err := s.client.Call(http.MethodDelete, u, map[string]string{}, resp, p)
+
 	return err
 }
 
@@ -62,7 +70,9 @@ func (s *UserService) Delete(username string) error {
 func (s *UserService) Get(username string) (*User, error) {
 	u := fmt.Sprintf("/tenancy/users/%s", username)
 	user := &User{}
-	err := s.client.Call("GET", u, nil, user, s.auth)
+	p := &Params{}
+	p.SetAuthProvider(s.auth)
+	err := s.client.Call(http.MethodGet, u, nil, user, p)
 	return user, err
 }
 
@@ -75,11 +85,13 @@ func (s *UserService) List() (*UserList, error) {
 	//q.Set("page_size", fmt.Sprintf("%d", maxPageSize))
 	//u.RawQuery = q.Encode()
 
+	p := &Params{}
+	p.SetAuthProvider(s.auth)
 	var results []User
 	users := &UserList{}
 
 	for {
-		err := s.client.Call("GET", u.String(), nil, users, s.auth)
+		err := s.client.Call(http.MethodGet, u.String(), nil, users, p)
 		if err != nil {
 			return nil, errors.Wrap(err, "Could not retrieve list of users")
 		}
@@ -88,7 +100,7 @@ func (s *UserService) List() (*UserList, error) {
 		// append page_size param to the returned params
 		u1, err := url.Parse(users.Meta.Next)
 		q := u1.Query()
-		q.Set("page_size", string(maxPageSize))
+		q.Set("page_size", string(MaxPageSize))
 		u.RawQuery = q.Encode()
 		if users.Meta.Next == "" {
 			break
@@ -107,13 +119,15 @@ func (s *UserService) ListN(count int) (*UserList, error) {
 	// q.Set("page_size", fmt.Sprintf("%d", maxPageSize))
 	// u.RawQuery = q.Encode()
 
+	p := &Params{}
+	p.SetAuthProvider(s.auth)
 	var results []User
 	users := &UserList{}
 
 	total := 0
 
 	for total <= count {
-		err := s.client.Call("GET", u.String(), nil, users, s.auth)
+		err := s.client.Call(http.MethodGet, u.String(), nil, users, p)
 		if err != nil {
 			return nil, errors.Wrap(err, "Could not retrieve list of users")
 		}
@@ -123,7 +137,7 @@ func (s *UserService) ListN(count int) (*UserList, error) {
 		// append page_size param to the returned params
 		u1, err := url.Parse(users.Meta.Next)
 		q := u1.Query()
-		q.Set("page_size", string(maxPageSize))
+		q.Set("page_size", string(MaxPageSize))
 		u.RawQuery = q.Encode()
 		if users.Meta.Next == "" {
 			break

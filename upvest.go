@@ -16,23 +16,23 @@ const (
 	// library version
 	version = "0.1.0"
 
-	// defaultHTTPTimeout is the default timeout on the http client
-	defaultHTTPTimeout = 60 * time.Second
+	// DefaultHTTPTimeout is the default timeout on the http client
+	DefaultHTTPTimeout = 60 * time.Second
 
-	// base URL for all requests. default to playground environment
-	defaultBaseURL = "https://api.playground.upvest.co/"
+	// DefaultBaseURL for all requests. default to playground environment
+	DefaultBaseURL = "https://api.playground.upvest.co/"
 
-	// User agent used when communicating with the Upvest API.
-	userAgent = "upvest-go/" + version
+	// UserAgent used when communicating with the Upvest API.
+	UserAgent = "upvest-go/" + version
 
-	apiVersion = "1.0"
-	oauthPath  = "/clientele/oauth2/token"
-	encoding   = "utf-8"
-	grantType  = "password"
-	scope      = "read write echo transaction"
+	// APIVersion is the currently supported API version
+	APIVersion = "1.0"
 
-	// maximum page size when retrieving list
-	maxPageSize = 100
+	// Encoding is the text encoding to use
+	Encoding = "utf-8"
+
+	// MaxPageSize is the maximum page size when retrieving list
+	MaxPageSize = 100
 )
 
 type service struct {
@@ -41,6 +41,8 @@ type service struct {
 }
 
 // Client manages communication with the Upvest API
+// Service specific actions are implemented on resource services mapped to the Upvest API.
+// Miscellaneous actions are directly implemented on the Client object
 type Client struct {
 	client *http.Client // HTTP client used to communicate with the API.
 
@@ -50,9 +52,6 @@ type Client struct {
 	baseURL *url.URL
 
 	logger Logger
-	// Services supported by the Upvest API.
-	// Miscellaneous actions are directly implemented on the Client object
-	User *UserService
 
 	LoggingEnabled bool
 	Log            Logger
@@ -66,8 +65,8 @@ type Logger interface {
 // Response represents arbitrary response data
 type Response map[string]interface{}
 
-// Params aliased to url.Values as a workaround
-type Params map[string]interface{}
+// RequestParams aliased to url.Values as a workaround
+type RequestParams map[string]interface{}
 
 // ListMeta is pagination metadata for paginated responses from the Upvest API
 type ListMeta struct {
@@ -81,10 +80,10 @@ type ListMeta struct {
 // where the http.DefaultClient is not available.
 func NewClient(baseURL string, httpClient *http.Client) *Client {
 	if httpClient == nil {
-		httpClient = &http.Client{Timeout: defaultHTTPTimeout}
+		httpClient = &http.Client{Timeout: DefaultHTTPTimeout}
 	}
 	if baseURL == "" {
-		baseURL = defaultBaseURL
+		baseURL = DefaultBaseURL
 	}
 	u, _ := url.Parse(baseURL)
 
@@ -99,46 +98,9 @@ func NewClient(baseURL string, httpClient *http.Client) *Client {
 }
 
 // Call actually does the HTTP request to Upvest API
-func (c *Client) Call(method, path string, body, v interface{}, auth AuthProvider) error {
-	if body == nil {
-		body = map[string]string{}
-	}
-	buf, err := jsonEncode(body)
-	if err != nil {
-		return errors.Wrap(err, "json encoding failed")
-	}
-
-	u, err := joinURLs(c.baseURL.String(), apiVersion, path)
-	if err != nil {
-		return errors.Wrap(err, "invalid request path")
-	}
-
-	req, err := http.NewRequest(method, u.String(), buf)
-
-	if err != nil {
-		if c.LoggingEnabled {
-			c.Log.Printf("Cannot create Upvest request: %v\n", err)
-		}
-		return errors.Wrap(err, "could not create HTTP request object")
-	}
-
-	// set headers
-	req.Header.Set("User-Agent", userAgent)
-	// Get the headers from the respectively needed auth provider
-	authHeaders, err := auth.GetHeaders(method, path, body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Execute request with authenticated headers
-	for k, v := range authHeaders {
-		req.Header.Set(k, v)
-	}
-
-	if c.LoggingEnabled {
-		c.Log.Printf("Requesting %v %v%v\n", req.Method, req.URL.Host, req.URL.Path)
-		c.Log.Printf("POST request data %v\n", buf)
-	}
-
+// TODO: refactor additional params into Param struct
+func (c *Client) Call(method, path string, body, v interface{}, p *Params) error {
+	req, err := c.NewRequest(method, path, body, p)
 	start := time.Now()
 
 	resp, err := c.client.Do(req)
@@ -152,6 +114,59 @@ func (c *Client) Call(method, path string, body, v interface{}, auth AuthProvide
 
 	defer resp.Body.Close()
 	return c.decodeResponse(resp, v)
+}
+
+// NewRequest is used by Call to generate an http.Request. It handles encoding
+// parameters and attaching the appropriate headers.
+func (c *Client) NewRequest(method, path string, body interface{}, p *Params) (*http.Request, error) {
+	u, err := joinURLs(c.baseURL.String(), APIVersion, path)
+	if err != nil {
+		return nil, errors.Wrap(err, "invalid request path")
+	}
+
+	if body == nil {
+		body = map[string]string{}
+	}
+
+	buf, err := jsonEncode(body)
+	if err != nil {
+		return nil, errors.Wrap(err, "json encoding failed")
+	}
+
+	req, err := http.NewRequest(method, u.String(), buf)
+	if c.LoggingEnabled {
+		c.Log.Printf("Requesting %v %v%v\n", req.Method, req.URL.Host, req.URL.Path)
+		c.Log.Printf("POST request data %v\n", buf)
+	}
+
+	if err != nil {
+		if c.LoggingEnabled {
+			c.Log.Printf("Cannot create Upvest request: %v\n", err)
+		}
+		return nil, errors.Wrap(err, "could not create HTTP request object")
+	}
+
+	// set headers
+	if p.Headers != nil {
+		for k, v := range p.Headers {
+			req.Header.Set(k, v[0])
+		}
+	}
+	req.Header.Set("User-Agent", UserAgent)
+
+	// Get the headers from the auth provider
+	if p.AuthProvider != nil {
+		authHeaders, err := p.AuthProvider.GetHeaders(method, path, body, c)
+		if err != nil {
+			log.Fatal(err)
+		}
+		// Execute request with authenticated headers
+		for k, v := range authHeaders {
+			req.Header.Set(k, v)
+		}
+	}
+
+	return req, nil
 }
 
 // decodeResponse decodes the JSON response from the Upvest API.
