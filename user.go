@@ -37,7 +37,6 @@ func (s *UserService) Create(username, password string) (*User, error) {
 	p := &Params{}
 	p.SetAuthProvider(s.auth)
 	err := s.client.Call(http.MethodPost, u, data, usr, p)
-
 	return usr, err
 }
 
@@ -49,7 +48,6 @@ func (s *UserService) Update(username string, rp RequestParams) (*User, error) {
 	p := &Params{}
 	p.SetAuthProvider(s.auth)
 	err := s.client.Call(http.MethodPatch, u, rp, usr, p)
-
 	return usr, err
 }
 
@@ -61,7 +59,6 @@ func (s *UserService) Delete(username string) error {
 	p := &Params{}
 	p.SetAuthProvider(s.auth)
 	err := s.client.Call(http.MethodDelete, u, map[string]string{}, resp, p)
-
 	return err
 }
 

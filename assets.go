@@ -32,7 +32,7 @@ type AssetList struct {
 }
 
 // Get returns the details of a asset.
-// For more details see
+// For more details see https://doc.upvest.co/reference#common_assets_read
 func (s *AssetService) Get(assetID string) (*Asset, error) {
 	u := fmt.Sprintf("/assets/%s", assetID)
 	asset := &Asset{}
