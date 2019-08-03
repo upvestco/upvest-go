@@ -1,6 +1,7 @@
 package upvest
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -57,7 +58,17 @@ func (s *WalletService) Create(wp *WalletParams) (*Wallet, error) {
 	p := &Params{}
 	p.SetAuthProvider(s.auth)
 	err := s.client.Call(http.MethodPost, u, wp, wallet, p)
+	return wallet, err
+}
 
+// Get returns the details of a wallet.
+// For more details see https://doc.upvest.co/reference#kms_wallets_read
+func (s *WalletService) Get(walletID string) (*Wallet, error) {
+	u := fmt.Sprintf("/kms/wallets/%s", walletID)
+	wallet := &Wallet{}
+	p := &Params{}
+	p.SetAuthProvider(s.auth)
+	err := s.client.Call(http.MethodGet, u, nil, wallet, p)
 	return wallet, err
 }
 
@@ -66,7 +77,6 @@ func (s *WalletService) Create(wp *WalletParams) (*Wallet, error) {
 func (s *WalletService) List() (*WalletList, error) {
 	path := "/kms/wallets/"
 	u, _ := url.Parse(path)
-
 	p := &Params{}
 	p.SetAuthProvider(s.auth)
 
@@ -79,6 +89,43 @@ func (s *WalletService) List() (*WalletList, error) {
 			return nil, errors.Wrap(err, "Could not retrieve list of wallets")
 		}
 		results = append(results, wallets.Values...)
+
+		// append page_size param to the returned params
+		u1, err := url.Parse(wallets.Meta.Next)
+		q := u1.Query()
+		q.Set("page_size", string(MaxPageSize))
+		u.RawQuery = q.Encode()
+		if wallets.Meta.Next == "" {
+			break
+		}
+	}
+
+	return &WalletList{Values: results}, nil
+}
+
+// ListN returns a specific number of wallets
+// For more details see https://doc.upvest.co/reference#tenancy_wallet_list
+func (s *WalletService) ListN(count int) (*WalletList, error) {
+	path := "/kms/wallets/"
+	u, _ := url.Parse(path)
+	// q := u.Query()
+	// q.Set("page_size", fmt.Sprintf("%d", maxPageSize))
+	// u.RawQuery = q.Encode()
+
+	p := &Params{}
+	p.SetAuthProvider(s.auth)
+	var results []Wallet
+	wallets := &WalletList{}
+
+	total := 0
+
+	for total <= count {
+		err := s.client.Call(http.MethodGet, u.String(), nil, wallets, p)
+		if err != nil {
+			return nil, errors.Wrap(err, "Could not retrieve list of wallets")
+		}
+		results = append(results, wallets.Values...)
+		total += len(wallets.Values)
 
 		// append page_size param to the returned params
 		u1, err := url.Parse(wallets.Meta.Next)
