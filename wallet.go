@@ -46,14 +46,14 @@ type WalletParams struct {
 	//Params   `json:"-"`
 	Password string `json:"password"`
 	AssetID  string `json:"asset_id"`
-	Type     string `json:"type"`
-	Index    int    `json:"index"`
+	Type     string `json:"type,omitempty"`
+	Index    int    `json:"index,omitempty"`
 }
 
 // Create creates a new wallet
 // For more details https://doc.upvest.co/reference#kms_wallet_create
 func (s *WalletService) Create(wp *WalletParams) (*Wallet, error) {
-	u := "/kms/wallets/"
+	u := "kms/wallets/"
 	wallet := &Wallet{}
 	p := &Params{}
 	p.SetAuthProvider(s.auth)
