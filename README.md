@@ -4,7 +4,7 @@
 
 In order to retrieve your API credentials for using this Go client, you'll need to [sign up with Upvest](https://login.upvest.co/sign-up).
 
-Where possible, the services available on the client groups the API into logical chunks and correspond to the structure of the Upvest API documentation at https://developers.upvest.co/v1.0/reference.
+Where possible, the services available on the client groups the API into logical chunks and correspond to the structure of the [Upvest API documentation](https://doc.upvest.co).
 
 First, create an Upvest client and depending on what action to take, you either create tenancy or clientele client. All tenancy related operations must be authenticated using the API Keys Authentication, whereas all actions on a user's behalf need to be authenticated via OAuth. The API calls are built along with those two authentication objects.
 
