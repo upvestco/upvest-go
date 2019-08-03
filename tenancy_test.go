@@ -94,11 +94,11 @@ func TestListAssets(t *testing.T) {
 
 	asset1 := assets.Values[0]
 	assertions := []bool{
-		asset1.ID == "51bfa4b5-6499-5fe2-998b-5fb3c9403ac7",
-		asset1.Name == "Arweave (internal testnet)",
-		asset1.Symbol == "AR",
-		asset1.Exponent == 12,
-		asset1.Protocol == "arweave_testnet",
+		asset1.ID == ethARWeaveAsset.ID,
+		asset1.Name == ethARWeaveAsset.Name,
+		asset1.Symbol == ethARWeaveAsset.Symbol,
+		asset1.Exponent == ethARWeaveAsset.Exponent,
+		asset1.Protocol == ethARWeaveAsset.Protocol,
 	}
 
 	for _, isValid := range assertions {

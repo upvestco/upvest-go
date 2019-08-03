@@ -10,11 +10,11 @@ import (
 
 // Balance has a quantity and an asset
 type Balance struct {
-	Amount   string `json:"amount"`
+	Amount   int64  `json:"amount"`
 	AssetID  string `json:"asset_id"`
 	Name     string `json:"name"`
 	Symbol   string `json:"symbol"`
-	Exponent string `json:"exponent"`
+	Exponent int    `json:"exponent"`
 }
 
 // Wallet represents an Upvest wallet

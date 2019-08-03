@@ -24,13 +24,13 @@ type Transaction struct {
 	Status    string `json:"status"`
 }
 
-// TransactionParams is the set of parameters that can be used when creating a wallet
+// TransactionParams is the set of parameters that can be used when creating a transaction
 // For more details see https://doc.upvest.co/reference#kms_transaction_create
 type TransactionParams struct {
-	Password  string `json:"status"`
+	Password  string `json:"password"`
 	AssetID   string `json:"asset_id"`
-	Quantity  string `json:"quantity"`
-	Fee       string `json:"fee"`
+	Quantity  int64  `json:"quantity"`
+	Fee       int64  `json:"fee"`
 	Recipient string `json:"recipient"`
 }
 
@@ -59,13 +59,13 @@ func (s *TransactionService) Create(walletID string, tp *TransactionParams) (*Tr
 
 // Get returns the details of a transaction.
 // For more details see https://doc.upvest.co/reference#kms_transactions_read
-func (s *TransactionService) Get(walletID, transactionID string) (*Transaction, error) {
-	u := fmt.Sprintf("/kms/wallets/%s/transactions/", walletID)
-	transaction := &Transaction{}
+func (s *TransactionService) Get(walletID, txnID string) (*Transaction, error) {
+	u := fmt.Sprintf("/kms/wallets/%s/transactions/%s", walletID, txnID)
+	txn := &Transaction{}
 	p := &Params{}
 	p.SetAuthProvider(s.auth)
-	err := s.client.Call(http.MethodGet, u, nil, transaction, p)
-	return transaction, err
+	err := s.client.Call(http.MethodGet, u, nil, txn, p)
+	return txn, err
 }
 
 // List returns list of all transactions.
