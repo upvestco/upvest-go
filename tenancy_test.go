@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Tests an API call to create a user"""
+// Tests API call to create a user
 func TestRegisterUser(t *testing.T) {
 	uid, _ := uuid.NewUUID()
 	username := fmt.Sprintf("upvest_test_%s", uid.String())
