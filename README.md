@@ -2,7 +2,7 @@
 
 # Go library for the Upvest API.
 
-In order to retrieve your API credentials for using this Python client, you'll need to [sign up with Upvest](https://login.upvest.co/sign-up).
+In order to retrieve your API credentials for using this Go client, you'll need to [sign up with Upvest](https://login.upvest.co/sign-up).
 
 Where possible, the services available on the client groups the API into logical chunks and correspond to the structure of the Upvest API documentation at https://developers.upvest.co/v1.0/reference.
 
@@ -13,8 +13,18 @@ First, create an Upvest client and depending on what action to take, you either 
 // and HTTP client, allowing overriding of the HTTP client to use.
 // This is useful if you're running in a Google AppEngine environment
 // where the http.DefaultClient is not available.
+
 c := NewClient("", nil)
+
+// Configure logging using the Loggingenabled config key
+c.Loggingenabled = true
 ```
+
+## Documentation
+
+For a comprehensive list of examples, check out the API documentation.
+
+For details on all the functionality in this library, see the GoDoc documentation.
 
 ### Tenancy API - API Keys Authentication
 The Upvest API uses the notion of _tenants_, which represent customers that build their platform upon the Upvest API. The end-users of the tenant (i.e. your customers), are referred to as _clients_. A tenant is able to manage their users directly (CRUD operations for the user instance) and is also able to initiate actions on the user's behalf (create wallets, send transactions).
@@ -77,3 +87,32 @@ if err != nil {
 }
 
 ```
+
+## Development
+
+1. Code must be `go fmt` compliant: `make fmt`
+2. All types, structs and funcs should be documented.
+3. Ensure that `make test` succeeds.
+4. Set up config settings via environment variables:
+
+    ```shell
+    # Set your tenancy API key information here.
+    export API_KEY=xxxx
+    export API_SECRET=xxxx
+    export API_PASSPHRASE=xxxx
+
+    # Set your OAuth2 client information here.
+    export OAUTH2_CLIENT_ID=xxxx
+    export OAUTH2_CLIENT_SECRET=xxxx
+    ```
+
+
+## Test
+
+Run all tests:
+
+    make test
+
+Run a single test:
+
+    DEBUG=1 go test -run TestChangePassword
