@@ -1,7 +1,9 @@
 package upvest
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -118,25 +120,31 @@ func (c *Client) Call(method, path string, body, v interface{}, p *Params) error
 
 // NewRequest is used by Call to generate an http.Request. It handles encoding
 // parameters and attaching the appropriate headers.
-func (c *Client) NewRequest(method, path string, body interface{}, p *Params) (*http.Request, error) {
+func (c *Client) NewRequest(method, path string, body interface{}, params *Params) (*http.Request, error) {
 	u, err := joinURLs(c.baseURL.String(), APIVersion, path)
 	if err != nil {
 		return nil, errors.Wrap(err, "invalid request path")
 	}
 
-	if body == nil {
-		body = map[string]string{}
+	var payload io.ReadWriter
+	payload = new(bytes.Buffer)
+
+	if params.Headers.Get("Content-Type") != URLEncodeHeader {
+		if body == nil {
+			body = map[string]string{}
+		}
+		payload, err = jsonEncode(body)
+		if err != nil {
+			return nil, errors.Wrap(err, "json encoding failed")
+		}
+	} else {
+		payload = body.(io.ReadWriter)
 	}
 
-	buf, err := jsonEncode(body)
-	if err != nil {
-		return nil, errors.Wrap(err, "json encoding failed")
-	}
-
-	req, err := http.NewRequest(method, u.String(), buf)
+	req, err := http.NewRequest(method, u.String(), payload)
 	if c.LoggingEnabled {
 		c.Log.Printf("Requesting %v %v%v\n", req.Method, req.URL.Host, req.URL.Path)
-		c.Log.Printf("POST request data %v\n", buf)
+		c.Log.Printf("POST request data %v\n", payload)
 	}
 
 	if err != nil {
@@ -147,16 +155,16 @@ func (c *Client) NewRequest(method, path string, body interface{}, p *Params) (*
 	}
 
 	// set headers
-	if p.Headers != nil {
-		for k, v := range p.Headers {
+	if params.Headers != nil {
+		for k, v := range params.Headers {
 			req.Header.Set(k, v[0])
 		}
 	}
 	req.Header.Set("User-Agent", UserAgent)
 
 	// Get the headers from the auth provider
-	if p.AuthProvider != nil {
-		authHeaders, err := p.AuthProvider.GetHeaders(method, path, body, c)
+	if params.AuthProvider != nil {
+		authHeaders, err := params.AuthProvider.GetHeaders(method, path, body, c)
 		if err != nil {
 			log.Fatal(err)
 		}

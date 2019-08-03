@@ -1,17 +1,20 @@
 package upvest
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"github.com/pkg/errors"
 )
 
 const (
+	URLEncodeHeader = "application/x-www-form-urlencoded"
 	// clientele
 	oauthPath = "/clientele/oauth2/token"
 	grantType = "password"
@@ -103,24 +106,23 @@ func (oauth OAuth) GetHeaders(method, path string, body interface{}, c *Client) 
 }
 
 func (oauth OAuth) preFlight(c *Client) (*OAuthResponse, error) {
-	body := map[string]string{
-		"grant_type":    grantType,
-		"scope":         scope,
-		"client_id":     oauth.clientID,
-		"client_secret": oauth.clientSecret,
-		"username":      oauth.username,
-		"password":      oauth.password,
-	}
-	buf, err := jsonEncode(body)
-	if err != nil {
-		return nil, err
-	}
+	data := url.Values{}
+	data.Add("grant_type", grantType)
+	data.Add("scope", scope)
+	data.Add("client_id", oauth.clientID)
+	data.Add("client_secret", oauth.clientSecret)
+	data.Add("username", oauth.username)
+	data.Add("password", oauth.password)
+
+	payload := bytes.NewBufferString(data.Encode())
 
 	p := &Params{}
 	// TODO: refactor this to pass content type to Call/CallRaw
-	p.Headers.Add("Content-Type", "application/x-www-form-urlencoded")
+	p.AddHeader("Content-Type", URLEncodeHeader)
+	p.AddHeader("Cache-Control", "no-cache")
+
 	resp := &OAuthResponse{}
 	// 	err = c.CallRaw(http.MethodPost, oauthPath, buf, resp, contentType)
-	err = c.Call(http.MethodPost, oauthPath, buf, resp, p)
+	err := c.Call(http.MethodPost, oauthPath, payload, resp, p)
 	return resp, err
 }
