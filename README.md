@@ -20,12 +20,6 @@ c := NewClient("", nil)
 c.Loggingenabled = true
 ```
 
-## Documentation
-
-For a comprehensive list of examples, check out the API documentation.
-
-For details on all the functionality in this library, see the GoDoc documentation.
-
 ### Tenancy API - API Keys Authentication
 The Upvest API uses the notion of _tenants_, which represent customers that build their platform upon the Upvest API. The end-users of the tenant (i.e. your customers), are referred to as _clients_. A tenant is able to manage their users directly (CRUD operations for the user instance) and is also able to initiate actions on the user's behalf (create wallets, send transactions).
 
@@ -116,3 +110,9 @@ Run all tests:
 Run a single test:
 
     DEBUG=1 go test -run TestChangePassword
+
+## More
+
+For a comprehensive reference, check out the [Upvest documentation](https://doc.upvest.co).
+
+For details on all the functionality in this library, see the [GoDoc documentation](https://godoc.org/github.com/rpip/upvest-go).
