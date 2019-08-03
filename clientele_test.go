@@ -1,6 +1,7 @@
 package upvest
 
 import (
+	"encoding/hex"
 	"testing"
 )
 
@@ -77,5 +78,18 @@ func TestTransactionList(t *testing.T) {
 	_, err = clienteleTestClient.Transaction.List(wallet1.ID)
 	if err != nil {
 		t.Errorf("Transaction list returned error: %v", err)
+	}
+}
+
+func TestWalletSign(t *testing.T) {
+	sp := &SignatureParams{
+		Password:     staticUserPW,
+		ToSign:       hex.EncodeToString([]byte(randomString(32))),
+		InputFormat:  "hex",
+		OutputFormat: "hex",
+	}
+	_, err := clienteleTestClient.Wallet.Sign(ethWallet.ID, sp)
+	if err != nil {
+		t.Errorf("Wallet sign returned error: %v", err)
 	}
 }
