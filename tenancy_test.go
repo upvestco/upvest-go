@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// Tests API call to create a user
-func TestRegisterUser(t *testing.T) {
+// Tests API call to create, retrieve and delete user
+func TestUserCRUD(t *testing.T) {
 	uid, _ := uuid.NewUUID()
 	username := fmt.Sprintf("upvest_test_%s", uid.String())
 	user, err := tenancyTestClient.User.Create(username, randomString(12))
@@ -21,11 +21,8 @@ func TestRegisterUser(t *testing.T) {
 	if user.RecoveryKit == "" {
 		t.Errorf("Expected User recovery kit to be set, got nil")
 	}
-}
 
-// Tests an API call to get a specific user
-func TestGetUser(t *testing.T) {
-	user, _ := createTestUser()
+	// retrieve the user
 	user1, err := tenancyTestClient.User.Get(user.Username)
 	if err != nil {
 		t.Errorf("GET User returned error: %v", err)
@@ -33,6 +30,15 @@ func TestGetUser(t *testing.T) {
 
 	if user.Username != user1.Username {
 		t.Errorf("Expected User username %v, got %v", user.Username, user1.Username)
+	}
+
+	// delete user
+	_ = tenancyTestClient.User.Delete(user.Username)
+	usr, err := tenancyTestClient.User.Get(user.Username)
+	aerr := err.(*APIError)
+
+	if aerr.StatusCode != 404 {
+		t.Errorf("Expected user not found, got %s", usr.Username)
 	}
 }
 
@@ -75,18 +81,6 @@ func TestChangePassword(t *testing.T) {
 
 	if user.Username != username {
 		t.Errorf("Expected username %s, got %+v", username, user)
-	}
-}
-
-// Tests an API call to update a user's password
-func TestDeleteUser(t *testing.T) {
-	user, _ := createTestUser()
-	_ = tenancyTestClient.User.Delete(user.Username)
-	usr, err := tenancyTestClient.User.Get(user.Username)
-	aerr := err.(*APIError)
-
-	if aerr.StatusCode != 404 {
-		t.Errorf("Expected user not found, got %s", usr.Username)
 	}
 }
 
