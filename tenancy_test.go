@@ -70,15 +70,12 @@ func TestListNUsers(t *testing.T) {
 // Tests an API call to update a user's password
 func TestChangePassword(t *testing.T) {
 	user, pw := createTestUser()
-	newPassword := randomString(12)
 	username := user.Username
-
-	params := make(RequestParams)
-	params["old_password"] = pw
-	params["new_password"] = newPassword
-
+	params := &ChangePasswordParams{
+		OldPassword: pw,
+		NewPassword: randomString(12),
+	}
 	user, _ = tenancyTestClient.User.Update(username, params)
-
 	if user.Username != username {
 		t.Errorf("Expected username %s, got %+v", username, user)
 	}

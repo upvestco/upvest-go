@@ -67,9 +67,6 @@ type Logger interface {
 // Response represents arbitrary response data
 type Response map[string]interface{}
 
-// RequestParams aliased to url.Values as a workaround
-type RequestParams map[string]interface{}
-
 // ListMeta is pagination metadata for paginated responses from the Upvest API
 type ListMeta struct {
 	Previous string `json:"previous"`

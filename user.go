@@ -28,6 +28,14 @@ type UserList struct {
 	Values []User `json:"results"`
 }
 
+// ChangePasswordParams is the set of parameters that can be used when changing user password
+// For more details see https://doc.upvest.co/reference#tenancy_user_password_update
+type ChangePasswordParams struct {
+	//Params   `json:"-"`
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
 // Create creates a new user
 // For more details https://doc.upvest.co/reference#tenancy_user_create
 func (s *UserService) Create(username, password string) (*User, error) {
@@ -41,13 +49,13 @@ func (s *UserService) Create(username, password string) (*User, error) {
 }
 
 // Update changes user password with the provided password
-// For more details https://doc.upvest.co/reference#tenancy_user_create
-func (s *UserService) Update(username string, rp RequestParams) (*User, error) {
+// For more details https://doc.upvest.co/reference#tenancy_user_password_update
+func (s *UserService) Update(username string, params *ChangePasswordParams) (*User, error) {
 	u := fmt.Sprintf("/tenancy/users/%s", username)
 	usr := &User{}
 	p := &Params{}
 	p.SetAuthProvider(s.auth)
-	err := s.client.Call(http.MethodPatch, u, rp, usr, p)
+	err := s.client.Call(http.MethodPatch, u, params, usr, p)
 	return usr, err
 }
 
