@@ -14,16 +14,24 @@ func TestWalletCRUD(t *testing.T) {
 	wp := &WalletParams{
 		Password: uid.String(),
 		AssetID:  asset1.ID,
-		Type:     "encrypted",
-		Index:    0,
+		// Type:     "encrypted",
+		// Index:    0,
 	}
-	_, err = clienteleTestClient.Wallet.Create(wp)
 	// create the wallet
+	wallet, err := clienteleTestClient.Wallet.Create(wp)
 	if err != nil {
 		t.Errorf("CREATE Wallet returned error: %v", err)
 	}
+
 	// retrieve the wallet
-	// retrieve the wallet list
+	wallet1, err := clienteleTestClient.Wallet.Get(wallet.ID)
+	if err != nil {
+		t.Errorf("GET Wallet returned error: %v", err)
+	}
+
+	if wallet.Address != wallet1.Address {
+		t.Errorf("Expected Wallet address %v, got %v", wallet.Address, wallet1.Address)
+	}
 }
 
 func TestWalletList(t *testing.T) {
