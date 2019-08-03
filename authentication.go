@@ -14,6 +14,7 @@ import (
 )
 
 const (
+	// URLEncodeHeader is the content-type header for OuAth2
 	URLEncodeHeader = "application/x-www-form-urlencoded"
 	// clientele
 	oauthPath = "/clientele/oauth2/token"

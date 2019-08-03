@@ -9,7 +9,7 @@ import (
 func TestWalletCRUD(t *testing.T) {
 	wp := &WalletParams{
 		Password: staticUserPW,
-		AssetID:  ethARWeaveAsset.ID,
+		AssetID:  ethWallet.Balances[0].AssetID,
 		// Type:     "encrypted",
 		// Index:    0,
 	}
