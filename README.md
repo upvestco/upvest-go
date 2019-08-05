@@ -65,7 +65,7 @@ Next, create an `Clientele` object with these credentials and your user authenti
 clientele = c.NewClientele(clientID, clientSecret, username, password)
 wp := &WalletParams{
     Password: staticUserPW,
-    AssetID:  ethWallet.Balances[0].AssetID,
+    AssetID: "8fc19cd0-8f50-4626-becb-c9e284d2315b",
 }
 
 // create the wallet
