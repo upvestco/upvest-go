@@ -29,28 +29,28 @@ Please create an API key pair within the [Upvest account management](https://log
 The default `BASE_URL` for both authentication objects is `https://api.playground.upvest.co`, but feel free to adjust it, once you retrieve your live keys. Next, create an `Tenancy` object in order to authenticate your API calls:
 
 ```go
-tenancyClient = c.NewTenant(apiKey, apiSecret, apiPassphrase)
+tenancy = c.NewTenant(apiKey, apiSecret, apiPassphrase)
 
 // create a user
-user, err := tenancyClient.User.Create(username, randomString(12))
+user, err := tenancy.User.Create(username, randomString(12))
 if err != nil {
     t.Errorf("CREATE User returned error: %v", err)
 }
 
 // list users
-users, err := tenancyClient.User.List()
+users, err := tenancy.User.List()
 if err != nil {
     t.Errorf("List Users returned error: %v", err)
 }
 
 // retrieve 20 users
-users, err := tenancyClient.User.ListN(20)
+users, err := tenancy.User.ListN(20)
 if err != nil {
     t.Errorf("List Users returned error: %v", err)
 }
 
 // change password
-user, err = tenancyClient.User.Update(username, params)
+user, err = tenancy.User.Update(username, params)
 ```
 
 ### Clientele API - OAuth Authentication
@@ -62,20 +62,20 @@ Next, create an `Clientele` object with these credentials and your user authenti
 
 ```go
 
-clienteleClient = c.NewClientele(clientID, clientSecret, username, password)
+clientele = c.NewClientele(clientID, clientSecret, username, password)
 wp := &WalletParams{
     Password: staticUserPW,
     AssetID:  ethWallet.Balances[0].AssetID,
 }
 
 // create the wallet
-wallet, err := clienteleTestClient.Wallet.Create(wp)
+wallet, err := clientele.Wallet.Create(wp)
 if err != nil {
     t.Errorf("CREATE Wallet returned error: %v", err)
 }
 
 // // retrieve the wallet
-wallet1, err := clienteleTestClient.Wallet.Get(wallet.ID)
+wallet1, err := clientele.Wallet.Get(wallet.ID)
 if err != nil {
     t.Errorf("GET Wallet returned error: %v", err)
 }
