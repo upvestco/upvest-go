@@ -29,28 +29,28 @@ Please create an API key pair within the [Upvest account management](https://log
 The default `BASE_URL` for both authentication objects is `https://api.playground.upvest.co`, but feel free to adjust it, once you retrieve your live keys. Next, create an `Tenancy` object in order to authenticate your API calls:
 
 ```go
-tenancy = c.NewTenant(apiKey, apiSecret, apiPassphrase)
+tenant = c.NewTenant(apiKey, apiSecret, apiPassphrase)
 
 // create a user
-user, err := tenancy.User.Create(username, randomString(12))
+user, err := tenant.User.Create(username, randomString(12))
 if err != nil {
     t.Errorf("CREATE User returned error: %v", err)
 }
 
 // list users
-users, err := tenancy.User.List()
+users, err := tenant.User.List()
 if err != nil {
     t.Errorf("List Users returned error: %v", err)
 }
 
 // retrieve 20 users
-users, err := tenancy.User.ListN(20)
+users, err := tenant.User.ListN(20)
 if err != nil {
     t.Errorf("List Users returned error: %v", err)
 }
 
 // change password
-user, err = tenancy.User.Update(username, params)
+user, err = tenant.User.Update(username, params)
 ```
 
 ### Clientele API - OAuth Authentication
@@ -80,6 +80,143 @@ if err != nil {
     t.Errorf("GET Wallet returned error: %v", err)
 }
 
+```
+
+## Usage
+
+### Tenancy
+#### User management
+
+##### Create a user
+```go
+user := tenant.User.Create('username','password')
+```
+
+##### Retrieve a user
+
+```go
+user := tenant.User.Get('username')
+```
+
+##### List all users under tenancy
+
+```go
+users := tenant.User.List()
+
+for _, user := range users.Values {
+  //do something with user
+}
+```
+
+##### List a specific number of users under tenancy
+
+```go
+users := tenant.User.listN(10)
+```
+
+##### Change password of a user
+
+```go
+params := &upvest.ChangePasswordParams{
+    OldPassword: "current password",
+    NewPassword: "new pasword",
+}
+user, _ := tenant.User.Update(username, params)
+```
+
+##### Delete a user
+
+```go
+tenant.User.Delete('username')
+```
+
+### Clientele
+
+#### Assets
+
+##### List available assets
+
+```go
+assets := clientele.Asset.List()
+for _, asset := range assets.Values {
+  //do something with asset
+}
+```
+
+
+#### Wallets
+
+##### Create a wallet for a user
+
+```go
+wp := &upvest.WalletParams{
+    Password: "current user password",
+    AssetID:  "asset ID",
+    // Type:     "encrypted",
+    // Index:    0,
+}
+
+// create the wallet
+wallet, err := clientele.Wallet.Create(wp)
+```
+
+##### Retrieve specific wallet for a user
+
+```go
+wallet1, err := clientele.Wallet.Get(walletID)
+```
+
+##### List all wallets for a user
+
+```go
+wallets := clientele.Wallet.List()
+for _, wallet := range wallets.Values {
+  //do something with wallet
+}
+```
+
+##### List a specific number of wallets
+
+```go
+wallets := clientele.Wallet.ListN(40)
+```
+
+#### Transactions
+
+##### Create transaction
+
+```go
+tp := &upvest.TransactionParams{
+    Password:  "current user password",
+    AssetID:   "asset ID",
+    Quantity:  "quantity, e.g. 10000000000000000",
+    Fee:       "fee, e.g. 41180000000000",
+    Recipient: "transaction address, e.g. 0xf9b44Ba370CAfc6a7AF77D0BDB0d50106823D91b",
+}
+
+// create the transaction
+txn, err := clientele.Transaction.Create("wallet ID", tp)
+```
+
+#### Retrieve specific transaction
+
+```go
+wallet1, err := clientele.Wallet.Get("wallet ID")
+```
+
+##### List all transactions of a wallet for a user
+
+```go
+transactions, err := clientele.Transaction.List("wallet ID")
+for _, txn := range transactions.Values {
+  //do something with transaction
+}
+```
+
+##### List a specific number of transactions of a wallet for a user
+
+```go
+transactions, err := clientele.Transaction.ListN("wallet ID", 8)
 ```
 
 ## Development

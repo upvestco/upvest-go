@@ -20,7 +20,7 @@ func TestWalletCRUD(t *testing.T) {
 		t.Errorf("CREATE Wallet returned error: %v", err)
 	}
 
-	// // retrieve the wallet
+	// retrieve the wallet
 	wallet1, err := clienteleTestClient.Wallet.Get(wallet.ID)
 	if err != nil {
 		t.Errorf("GET Wallet returned error: %v", err)
