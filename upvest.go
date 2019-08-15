@@ -181,7 +181,7 @@ func (c *Client) decodeResponse(httpResp *http.Response, v interface{}) error {
 	respBody, err := ioutil.ReadAll(httpResp.Body)
 	json.Unmarshal(respBody, &resp)
 
-	if httpResp.StatusCode >= 300 {
+	if httpResp.StatusCode >= http.StatusBadRequest {
 		err = newAPIError(httpResp)
 		if c.LoggingEnabled {
 			c.Log.Printf("Upvest error: %+v", err)
