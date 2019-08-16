@@ -3,7 +3,6 @@ package upvest
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 )
@@ -37,11 +36,12 @@ func newAPIError(resp *http.Response) *APIError {
 
 	var upvestErrorResp map[string]interface{}
 	_ = json.Unmarshal(p, &upvestErrorResp)
-	log.Printf("==> error.... %v \n %v \n", p, upvestErrorResp)
 	errorType := "server_error"
 	if err, ok := errorTypes[resp.StatusCode]; ok {
 		errorType = err
 	}
+
+	// uperror := upvestErrorResp["error"].(map[string]interface{})
 
 	return &APIError{
 		Type:       errorType,
@@ -49,5 +49,6 @@ func newAPIError(resp *http.Response) *APIError {
 		Header:     resp.Header,
 		Details:    upvestErrorResp,
 		URL:        resp.Request.URL,
+		//Message:    uperror["Message"].(string),
 	}
 }

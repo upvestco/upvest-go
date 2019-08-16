@@ -177,17 +177,20 @@ func (c *Client) NewRequest(method, path string, body interface{}, params *Param
 // decodeResponse decodes the JSON response from the Upvest API.
 // The actual response will be written to the `v` parameter
 func (c *Client) decodeResponse(httpResp *http.Response, v interface{}) error {
-	var resp Response
-	respBody, err := ioutil.ReadAll(httpResp.Body)
-	json.Unmarshal(respBody, &resp)
-
 	if httpResp.StatusCode >= http.StatusBadRequest {
-		err = newAPIError(httpResp)
+		err := newAPIError(httpResp)
 		if c.LoggingEnabled {
 			c.Log.Printf("Upvest error: %+v", err)
 		}
 		return err
 	}
+
+	var resp Response
+	respBody, err := ioutil.ReadAll(httpResp.Body)
+	if err != nil {
+		return err
+	}
+	json.Unmarshal(respBody, &resp)
 
 	if c.LoggingEnabled {
 		c.Log.Printf("Upvest response: %v\n", resp)
