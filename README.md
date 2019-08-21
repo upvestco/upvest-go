@@ -89,19 +89,19 @@ if err != nil {
 
 ##### Create a user
 ```go
-user := tenant.User.Create('username','password')
+user, err := tenant.User.Create('username','password')
 ```
 
 ##### Retrieve a user
 
 ```go
-user := tenant.User.Get('username')
+user, err := tenant.User.Get('username')
 ```
 
 ##### List all users under tenancy
 
 ```go
-users := tenant.User.List()
+users, err := tenant.User.List()
 
 for _, user := range users.Values {
   //do something with user
@@ -111,7 +111,7 @@ for _, user := range users.Values {
 ##### List a specific number of users under tenancy
 
 ```go
-users := tenant.User.listN(10)
+users, err := tenant.User.listN(10)
 ```
 
 ##### Change password of a user
@@ -121,7 +121,7 @@ params := &upvest.ChangePasswordParams{
     OldPassword: "current password",
     NewPassword: "new pasword",
 }
-user, _ := tenant.User.Update(username, params)
+user, err := tenant.User.Update(username, params)
 ```
 
 ##### Delete a user
@@ -137,7 +137,7 @@ tenant.User.Delete('username')
 ##### List available assets
 
 ```go
-assets := clientele.Asset.List()
+assets, err := clientele.Asset.List()
 for _, asset := range assets.Values {
   //do something with asset
 }
@@ -169,7 +169,7 @@ wallet1, err := clientele.Wallet.Get(walletID)
 ##### List all wallets for a user
 
 ```go
-wallets := clientele.Wallet.List()
+wallets, err := clientele.Wallet.List()
 for _, wallet := range wallets.Values {
   //do something with wallet
 }
