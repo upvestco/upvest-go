@@ -178,7 +178,7 @@ for _, wallet := range wallets.Values {
 ##### List a specific number of wallets
 
 ```go
-wallets := clientele.Wallet.ListN(40)
+wallets, err := clientele.Wallet.ListN(40)
 ```
 
 #### Transactions
