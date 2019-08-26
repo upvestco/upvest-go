@@ -96,6 +96,12 @@ func NewClient(baseURL string, httpClient *http.Client) *Client {
 	return c
 }
 
+func (c *Client) log(format string, a ...interface{}) {
+	if c.LoggingEnabled {
+		c.Log.Printf(format, a...)
+	}
+}
+
 // Call actually does the HTTP request to Upvest API
 // TODO: refactor additional params into Param struct
 func (c *Client) Call(method, path string, body, v interface{}, p *Params) error {
@@ -107,9 +113,7 @@ func (c *Client) Call(method, path string, body, v interface{}, p *Params) error
 		return err
 	}
 
-	if c.LoggingEnabled {
-		c.Log.Printf("Completed in %v\n", time.Since(start))
-	}
+	c.log("Completed in %v\n", time.Since(start))
 
 	defer resp.Body.Close()
 	return c.decodeResponse(resp, v)
@@ -139,15 +143,11 @@ func (c *Client) NewRequest(method, path string, body interface{}, params *Param
 	}
 
 	req, err := http.NewRequest(method, u.String(), payload)
-	if c.LoggingEnabled {
-		c.Log.Printf("Requesting %v %v%v\n", req.Method, req.URL.Host, req.URL.Path)
-		c.Log.Printf("POST request data %v\n", payload)
-	}
+	c.log("Requesting %v %v%v\n", req.Method, req.URL.Host, req.URL.Path)
+	c.log("POST request data %v\n", payload)
 
 	if err != nil {
-		if c.LoggingEnabled {
-			c.Log.Printf("Cannot create Upvest request: %v\n", err)
-		}
+		c.log("Cannot create Upvest request: %v\n", err)
 		return nil, errors.Wrap(err, "could not create HTTP request object")
 	}
 
@@ -179,9 +179,7 @@ func (c *Client) NewRequest(method, path string, body interface{}, params *Param
 func (c *Client) decodeResponse(httpResp *http.Response, v interface{}) error {
 	if httpResp.StatusCode >= http.StatusBadRequest {
 		err := newAPIError(httpResp)
-		if c.LoggingEnabled {
-			c.Log.Printf("Upvest error: %+v", err)
-		}
+		c.log("Upvest error: %+v", err)
 		return err
 	}
 
@@ -192,9 +190,7 @@ func (c *Client) decodeResponse(httpResp *http.Response, v interface{}) error {
 	}
 	json.Unmarshal(respBody, &resp)
 
-	if c.LoggingEnabled {
-		c.Log.Printf("Upvest response: %v\n", resp)
-	}
+	c.log("Upvest response: %v\n", resp)
 
 	return mapstruct(resp, v)
 }
