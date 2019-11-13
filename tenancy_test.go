@@ -35,7 +35,7 @@ func TestUserCRUD(t *testing.T) {
 	// delete user
 	_ = tenancyTestClient.User.Delete(user.Username)
 	usr, err := tenancyTestClient.User.Get(user.Username)
-	aerr := err.(*APIError)
+	aerr := err.(*Error)
 
 	if aerr.StatusCode != 404 {
 		t.Errorf("Expected user not found, got %s", usr.Username)

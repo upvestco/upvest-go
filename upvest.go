@@ -178,7 +178,7 @@ func (c *Client) NewRequest(method, path string, body interface{}, params *Param
 // The actual response will be written to the `v` parameter
 func (c *Client) decodeResponse(httpResp *http.Response, v interface{}) error {
 	if httpResp.StatusCode >= http.StatusBadRequest {
-		err := newAPIError(httpResp)
+		err := NewError(httpResp)
 		c.log("Upvest error: %+v", err)
 		return err
 	}

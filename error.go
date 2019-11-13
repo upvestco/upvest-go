@@ -7,17 +7,29 @@ import (
 	"net/url"
 )
 
-var errorTypes = map[int]string{
-	400: "invalid_request_error",
-	401: "authorization_error",
-	403: "authentication_error",
-	409: "duplicate_user",
-	500: "server_error",
+// ErrorType is represents the allowed values for the error's type.
+type ErrorType string
+
+// List of values that ErrorType can take.
+const (
+	ErrInvalidRequest ErrorType = "invalid_request_error"
+	ErrAuthorization            = "authorization_error"
+	ErrAuthentication           = "authentication_error"
+	ErrDuplicateUser            = "duplicate_user"
+	ErrServer                   = "server_error"
+)
+
+var errorTypes = map[int]ErrorType{
+	http.StatusBadRequest:          ErrInvalidRequest,
+	http.StatusUnauthorized:        ErrAuthorization,
+	http.StatusForbidden:           ErrAuthentication,
+	http.StatusConflict:            ErrDuplicateUser,
+	http.StatusInternalServerError: ErrServer,
 }
 
-// APIError represents an error response from the Upvest API server
-type APIError struct {
-	Type       string                 `json:"type,omitempty"`
+// Error represents an error response from the Upvest API server
+type Error struct {
+	Type       ErrorType              `json:"type,omitempty"`
 	Message    string                 `json:"message,omitempty"`
 	StatusCode int                    `json:"code,omitempty"`
 	Details    map[string]interface{} `json:"details,omitempty"`
@@ -25,25 +37,25 @@ type APIError struct {
 	Header     http.Header            `json:"header,omitempty"`
 }
 
-// APIError supports the error interface
-func (aerr *APIError) Error() string {
+// httpError supports the error interface
+func (aerr *Error) Error() string {
 	ret, _ := json.Marshal(aerr)
 	return string(ret)
 }
 
-func newAPIError(resp *http.Response) *APIError {
+func NewError(resp *http.Response) *Error {
 	p, _ := ioutil.ReadAll(resp.Body)
 
 	var upvestErrorResp map[string]interface{}
 	_ = json.Unmarshal(p, &upvestErrorResp)
-	errorType := "server_error"
+	var errorType ErrorType = "server_error"
 	if err, ok := errorTypes[resp.StatusCode]; ok {
 		errorType = err
 	}
 
 	// uperror := upvestErrorResp["error"].(map[string]interface{})
 
-	return &APIError{
+	return &Error{
 		Type:       errorType,
 		StatusCode: resp.StatusCode,
 		Header:     resp.Header,
