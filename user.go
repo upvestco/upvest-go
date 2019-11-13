@@ -48,9 +48,9 @@ func (s *UserService) Create(username, password string) (*User, error) {
 	return usr, err
 }
 
-// Update changes user password with the provided password
+// ChangePassword changes user password with the provided password
 // For more details https://doc.upvest.co/reference#tenancy_user_password_update
-func (s *UserService) Update(username string, params *ChangePasswordParams) (*User, error) {
+func (s *UserService) ChangePassword(username string, params *ChangePasswordParams) (*User, error) {
 	u := fmt.Sprintf("/tenancy/users/%s", username)
 	usr := &User{}
 	p := &Params{}

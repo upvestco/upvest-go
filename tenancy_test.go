@@ -75,7 +75,7 @@ func TestChangePassword(t *testing.T) {
 		OldPassword: pw,
 		NewPassword: randomString(12),
 	}
-	user, _ = tenancyTestClient.User.Update(username, params)
+	user, _ = tenancyTestClient.User.ChangePassword(username, params)
 	if user.Username != username {
 		t.Errorf("Expected username %s, got %+v", username, user)
 	}

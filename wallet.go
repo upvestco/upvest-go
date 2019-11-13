@@ -36,7 +36,6 @@ type SignatureParams struct {
 	ToSign       string `json:"to_sign"`
 	InputFormat  string `json:"input_format,omitempty"`
 	OutputFormat string `json:"output_format,omitempty"`
-	Algorithm    string `json:"-"`
 }
 
 // WalletParams is the set of parameters that can be used when creating or updating a wallet

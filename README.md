@@ -50,7 +50,7 @@ if err != nil {
 }
 
 // change password
-user, err = tenant.User.Update(username, params)
+user, err = tenant.User.ChangePassword(username, params)
 ```
 
 ### Clientele API - OAuth Authentication
@@ -121,7 +121,7 @@ params := &upvest.ChangePasswordParams{
     OldPassword: "current password",
     NewPassword: "new pasword",
 }
-user, err := tenant.User.Update(username, params)
+user, err := tenant.User.ChangePassword(username, params)
 ```
 
 ##### Delete a user
