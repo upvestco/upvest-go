@@ -7,11 +7,11 @@ import (
 // Params is the structure that contains the common properties
 // of any *Params structure.
 type Params struct {
-	// Headers may be used to provide extra header lines on the HTTP request.
-	Headers http.Header `json:"-"`
-
 	// AuthProvider for authenticating the request
 	AuthProvider AuthProvider `json:"-"`
+
+	// Headers may be used to provide extra header lines on the HTTP request.
+	Headers http.Header `json:"-"`
 }
 
 // SetAuthProvider sets a value for the auth mechanism
@@ -26,4 +26,8 @@ func (p *Params) AddHeader(key, value string) {
 	}
 
 	p.Headers.Add(key, value)
+}
+
+func NewParams(auth AuthProvider) *Params {
+	return &Params{AuthProvider: auth}
 }
