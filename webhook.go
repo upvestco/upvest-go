@@ -10,14 +10,42 @@ import (
 
 // Webhook represents an Upvest webhook
 type Webhook struct {
-	ID           string    `json:"id"`
-	URL          string    `json:"url"`
-	Name         []Balance `json:"name"`
-	HMACSecret   string    `json:"hmac_secret"`
-	Headers      string    `json:"headers"`
-	Version      string    `json:"version"`
-	Status       string    `json:"status"`
-	EventFilters []string  `json:"event_filters"`
+	ID            string            `json:"id"`
+	URL           string            `json:"url"`
+	Name          string            `json:"name"`
+	HMACSecretKey string            `json:"hmac_secret_key"`
+	Headers       map[string]string `json:"headers"`
+	Version       string            `json:"version"`
+	Status        string            `json:"status"`
+	//EventFilters  []map[string]EventFilter `json:"event_filters"`
+	// TODO: report inconsistent response schema. event filters should be: [string -> map]
+	// temporarily decode to generic interface
+	EventFilters []interface{} `json:"event_filters"`
+}
+
+// EventFilterNoun represents one of the configured event filter scopes
+type EventFilterScope string
+
+// EventFilter represents serialized event filter as returned from the server
+type EventFilter struct {
+	EventNoun          string `json:"event_noun"`
+	EventVerb          string `json:"event_verb"`
+	LimitToApplication bool   `json:"limit_to_application"`
+	MaxConfirmations   int    `json:"max_confirmations"`
+	ProtocolName       string `json:"procol_name"`
+	WalletAddress      string `json:"wallet_address"`
+}
+
+// WebhookParams is the set of parameters that can be used when creating a webhook
+type WebhookParams struct {
+	URL           string            `json:"url"`
+	Name          string            `json:"name"`
+	HMACSecretKey string            `json:"hmac_secret_key"`
+	Headers       map[string]string `json:"headers"`
+	Version       string            `json:"version"`
+	Status        string            `json:"status"`
+	// An array of platform, noun and verb combinations capturing desired events.
+	EventFilters []EventFilterScope `json:"event_filters"`
 }
 
 // WebhookService handles operations related to the webhook
@@ -36,7 +64,7 @@ type WebhookList struct {
 // as the parameters required to create a new one is basically all the fields in the webhook struct.
 // Only difference being that it has not yet been saved on Upvest backend
 // TODO: validate params
-func (s *WebhookService) Create(wh *Webhook) (*Webhook, error) {
+func (s *WebhookService) Create(wh *WebhookParams) (*Webhook, error) {
 	u := "/tenancy/webhooks/"
 	webhook := &Webhook{}
 	p := NewParams(s.auth)
@@ -126,11 +154,11 @@ func (s *WebhookService) Delete(webhookID string) error {
 }
 
 // Verfy a webhook
-func (s *WebhookService) Verify(url string) error {
+func (s *WebhookService) Verify(url string) bool {
 	u := fmt.Sprintf("/tenancy/webhooks-verify/")
-	body := map[string]string{"veiry_url": url}
+	body := map[string]string{"verify_url": url}
 	resp := &Response{}
 	p := NewParams(s.auth)
 	err := s.client.Call(http.MethodPost, u, body, resp, p)
-	return err
+	return err == nil
 }

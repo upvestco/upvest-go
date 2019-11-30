@@ -2,6 +2,8 @@ package upvest
 
 import (
 	"fmt"
+	"os"
+	"reflect"
 	"testing"
 
 	"github.com/google/uuid"
@@ -102,5 +104,75 @@ func TestListAssets(t *testing.T) {
 		if !isValid {
 			t.Errorf("Asset structure does not match expected")
 		}
+	}
+}
+
+func TestWebhookVerify(t *testing.T) {
+	verificationURL := os.Getenv("WEBHOOK_VERIFICATION_URL")
+	isVerified := tenancyTestClient.Webhook.Verify(verificationURL)
+	if !isVerified {
+		t.Errorf("webhook verification failed: %s", verificationURL)
+	}
+}
+
+// Tests API call to create, retrieve and delete webhook
+func TestWebhookCRUD(t *testing.T) {
+	url := os.Getenv("WEBHOOK_URL")
+	uid, _ := uuid.NewUUID()
+	webhook := &WebhookParams{
+		URL:     url,
+		Name:    fmt.Sprintf("test-webhook-%s", uid.String()),
+		Headers: map[string]string{"X-Test": "Hello world!"},
+		Version: "1.2",
+		Status:  "ACTIVE",
+		EventFilters: []EventFilterScope{
+			"upvest.wallet.created",
+			"ropsten.block.*",
+			"upvest.echo.post",
+		},
+		HMACSecretKey: "abcdef",
+	}
+
+	wh, err := tenancyTestClient.Webhook.Create(webhook)
+	if err != nil {
+		t.Errorf("CREATE Webhook returned error: %v", err)
+	}
+	if wh.Name != webhook.Name {
+		t.Errorf("Expected Webhook name %v, got %v", webhook.Name, wh.Name)
+	}
+	if wh.ID == "" {
+		t.Errorf("Expected Webhook ID property to be set, got nil")
+	}
+
+	// retrieve the webhook
+	wh1, err := tenancyTestClient.Webhook.Get(wh.ID)
+	if err != nil {
+		t.Errorf("GET Webhook returned error: %v", err)
+	}
+
+	if wh.Name != wh.Name {
+		t.Errorf("Expected Webhook Name %v, got %v", wh.Name, wh1.Name)
+	}
+
+	// delete webhook
+	_ = tenancyTestClient.Webhook.Delete(wh.ID)
+	wh2, err := tenancyTestClient.Webhook.Get(wh.ID)
+	aerr := err.(*Error)
+
+	if aerr.StatusCode != 404 {
+		t.Errorf("Expected Webhooknot found, got %s", wh2.Name)
+	}
+}
+
+func TestListWebhooks(t *testing.T) {
+	// list all webhooks
+	webhooks, err := tenancyTestClient.Webhook.List()
+
+	if err != nil {
+		t.Errorf("List webhooks returned error: %v", err)
+	}
+
+	if reflect.ValueOf(webhooks).Kind() != reflect.Struct {
+		t.Errorf("Retruned list is not webhook list: %s", err)
 	}
 }
