@@ -176,3 +176,76 @@ func TestListWebhooks(t *testing.T) {
 		t.Errorf("Retruned list is not webhook list: %s", err)
 	}
 }
+
+const (
+	EthProtocol       = "ethereum"
+	EthRopstenNetwork = "ropsten"
+)
+
+func TestHistoricalAssetBalance(t *testing.T) {
+	Address := "0x93b3d0b2894e99c2934bed8586ea4e2b94ce6bfd"
+	balance, err := tenancyTestClient.Historical.GetAssetBalance(EthProtocol, EthRopstenNetwork, Address)
+	if err != nil {
+		t.Errorf("GET asset balance returned error: %v", err)
+	}
+
+	if balance.Address != Address {
+		t.Errorf("Expected Asset Address %v, got %v", Address, balance.Address)
+	}
+}
+
+func TestHistoricalContractBalance(t *testing.T) {
+	ToAddr := "0x93b3d0b2894e99c2934bed8586ea4e2b94ce6bfd"
+	ContractAddr := "0x1d7cf6ad190772cc6177beea2e3ae24cc89b2a10"
+	balance, err := tenancyTestClient.Historical.GetContractBalance(EthProtocol, EthRopstenNetwork, ToAddr, ContractAddr)
+	if err != nil {
+		t.Errorf("GET contract balance returned error: %v", err)
+	}
+
+	if balance.Address != ToAddr {
+		t.Errorf("Expected Contract Address %v, got %v", ToAddr, balance.Address)
+	}
+}
+
+func TestHistoricalStatus(t *testing.T) {
+	status, err := tenancyTestClient.Historical.GetStatus(EthProtocol, EthRopstenNetwork)
+	if err != nil {
+		t.Errorf("GET status returned error: %v", err)
+	}
+
+	if status.Lowest == "" {
+		t.Errorf("Expected Status.Lowest to be set, got nil")
+	}
+
+	if status.Highest == "" {
+		t.Errorf("Expected Status.Highest to be set, got nil")
+	}
+
+	if status.Latest == "" {
+		t.Errorf("Expected Status.Latest to be set, got nil")
+	}
+}
+
+func TestHistoricalTxByHash(t *testing.T) {
+	TxHash := "0xa313aaad0b9b1fd356f7f42ccff1fa385a2f7c2585e0cf1e0fb6814d8bdb559a"
+	tx, err := tenancyTestClient.Historical.GetTxByHash(EthProtocol, EthRopstenNetwork, TxHash)
+	if err != nil {
+		t.Errorf("GET transactions by txhash returned error: %v", err)
+	}
+
+	if tx.Hash != TxHash[1:len(TxHash)] {
+		t.Errorf("Expected Transaction Hash %v, got %v", TxHash, tx.Hash)
+	}
+}
+
+func TestHistoricalBlock(t *testing.T) {
+	blockNumber := "6570890"
+	block, err := tenancyTestClient.Historical.GetBlock(EthProtocol, EthRopstenNetwork, blockNumber)
+	if err != nil {
+		t.Errorf("GET block returned error: %v", err)
+	}
+
+	if block.Number != blockNumber {
+		t.Errorf("Expected block number %v, got %v", blockNumber, block.Number)
+	}
+}
