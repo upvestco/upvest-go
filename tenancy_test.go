@@ -249,3 +249,19 @@ func TestHistoricalBlock(t *testing.T) {
 		t.Errorf("Expected block number %v, got %v", blockNumber, block.Number)
 	}
 }
+
+func TestHistoricalTransactions(t *testing.T) {
+	address := "0x6590896988376a90326cb2f741cb4f8ace1882d5"
+	confirmations := 1000
+	opts := &TxFilters{Confirmations: confirmations}
+	txns, err := tenancyTestClient.Historical.GetTransactions(EthProtocol, EthRopstenNetwork, address, opts)
+	if err != nil {
+		t.Errorf("GET transactions returned error: %v", err)
+	}
+
+	for _, v := range txns.Values {
+		if !(v.Confirmations > confirmations) {
+			t.Errorf("GET transactions confirmations mismatch. Expected %d, got %d", confirmations, v.Confirmations)
+		}
+	}
+}

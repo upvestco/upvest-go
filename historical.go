@@ -3,6 +3,8 @@ package upvest
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
 // HDBlock represents block object from historical data API
@@ -41,7 +43,7 @@ type HDTransaction struct {
 	Value            string `json:"value"`
 	GasPrice         string `json:"gasPrice"`
 	Input            string `json:"input"`
-	Confirmations    string `json:"confirmations"`
+	Confirmations    int    `json:"confirmations"`
 }
 
 // HDBalance reprents balance of an asset or contract
@@ -61,8 +63,8 @@ type HDBalance struct {
 
 // HDTransactionList is a list of HDTransaction objects
 type HDTransactionList struct {
-	Transactions []HDTransaction `json:"result"`
-	NextCursor   string          `json:"next_cursor"`
+	Values     []HDTransaction `json:"result"`
+	NextCursor string          `json:"next_cursor"`
 }
 
 // HDStatus represents historical data API status object
@@ -80,6 +82,7 @@ type HistoricalDataService struct {
 // GetTxByHash transaction (single) by txhash
 func (s *HistoricalDataService) GetTxByHash(protocol, network, txhash string) (*HDTransaction, error) {
 	u := fmt.Sprintf("/data/%s/%s/transaction/%s", protocol, network, txhash)
+	fmt.Printf("==>URL:  %+v \n\n", u)
 	p := NewParams(s.auth)
 	txn := &HDTransaction{}
 	r := &hdresult{}
@@ -92,21 +95,31 @@ func (s *HistoricalDataService) GetTxByHash(protocol, network, txhash string) (*
 
 // TxFilters is for filtering historical Data API queries
 type TxFilters struct {
-	Before        string `json:"before,omitempty"`
-	After         string `json:"after,omitempty"`
-	Confirmations string `json:"confirmations,omitempty"`
+	Before        string `url:"before,omitempty"`
+	After         string `url:"after,omitempty"`
+	Confirmations int    `url:"confirmations,omitempty"`
+	Cursor        string `url:"cursor"`
+	Limit         int    `url:"limit,omitempty"`
 }
 
 // GetTransactions returns transactions that have been sent to and received by an address
-func (s *HistoricalDataService) GetTransactions(protocol, network, address string, txfilter TxFilters) (*[]HDTransaction, error) {
+func (s *HistoricalDataService) GetTransactions(protocol, network, address string, opts *TxFilters) (*HDTransactionList, error) {
 	u := fmt.Sprintf("/data/%s/%s/transactions/%s", protocol, network, address)
-	p := NewParams(s.auth)
-	txns := &[]HDTransaction{}
-	r := &hdresult{}
-	err := s.client.Call(http.MethodGet, u, txfilter, r, p)
-	if err == nil {
-		err = mapstruct(r.Result, txns)
+	if opts != nil {
+		var err error
+		u, err = addOptions(u, opts)
+		if err != nil {
+			return nil, errors.Wrap(err, "adding options failed")
+		}
 	}
+	p := NewParams(s.auth)
+	txns := &HDTransactionList{}
+	r := &hdresult{}
+	err := s.client.Call(http.MethodGet, u, nil, r, p)
+	if err != nil {
+		return nil, errors.Wrap(err, "error retrieving transactions")
+	}
+	err = mapstruct(r.Result, txns)
 	return txns, err
 }
 
