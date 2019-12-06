@@ -14,7 +14,7 @@ type HDBlock struct {
 	ParentHash       string   `json:"parentHash"`
 	Nonce            string   `json:"nonce"`
 	Sha3Uncles       string   `json:"sha3Uncles"`
-	LogsBloom        string   `json"logsBloom"`
+	LogsBloom        string   `json:"logsBloom"`
 	TransactionsRoot string   `json:"transactionsRoot"`
 	StateRoot        string   `json:"stateRoot"`
 	ReceiptsRoot     string   `json:"receiptsRoot"`
@@ -32,13 +32,13 @@ type HDBlock struct {
 
 // HDTransaction represents transaction object from historical data API
 type HDTransaction struct {
-	blockHash        string `json:"blockHash"`
-	blockNumber      string `json:"blockNumber"`
+	BlockHash        string `json:"blockHash"`
+	BlockNumber      string `json:"blockNumber"`
 	From             string `json:"from"`
 	Gas              string `json:"gas"`
 	Hash             string `json:"hash"`
 	Nonce            string `json:"nonce"`
-	transactionIndex string `json:"transactionIndex"`
+	TransactionIndex string `json:"transactionIndex"`
 	To               string `json:"to"`
 	Value            string `json:"value"`
 	GasPrice         string `json:"gasPrice"`
@@ -71,7 +71,16 @@ type HDTransactionList struct {
 type HDStatus struct {
 	Lowest  string `json:"lowest"`
 	Highest string `json:"highest"`
-	Latest  string "latest"
+	Latest  string `json:"latest"`
+}
+
+// TxFilters is for filtering historical Data API queries
+type TxFilters struct {
+	Before        string `url:"before,omitempty"`
+	After         string `url:"after,omitempty"`
+	Confirmations int    `url:"confirmations,omitempty"`
+	Cursor        string `url:"cursor"`
+	Limit         int    `url:"limit,omitempty"`
 }
 
 // HistoricalDataService handles operations related to the historical data
@@ -91,15 +100,6 @@ func (s *HistoricalDataService) GetTxByHash(protocol, network, txhash string) (*
 		err = mapstruct(r.Result, txn)
 	}
 	return txn, err
-}
-
-// TxFilters is for filtering historical Data API queries
-type TxFilters struct {
-	Before        string `url:"before,omitempty"`
-	After         string `url:"after,omitempty"`
-	Confirmations int    `url:"confirmations,omitempty"`
-	Cursor        string `url:"cursor"`
-	Limit         int    `url:"limit,omitempty"`
 }
 
 // GetTransactions returns transactions that have been sent to and received by an address

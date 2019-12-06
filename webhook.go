@@ -23,7 +23,7 @@ type Webhook struct {
 	EventFilters []interface{} `json:"event_filters"`
 }
 
-// EventFilterNoun represents one of the configured event filter scopes
+// EventFilterScope represents one of the configured event filter scopes
 type EventFilterScope string
 
 // EventFilter represents serialized event filter as returned from the server
@@ -153,7 +153,7 @@ func (s *WebhookService) Delete(webhookID string) error {
 	return err
 }
 
-// Verfy a webhook
+// Verify a webhook
 func (s *WebhookService) Verify(url string) bool {
 	u := fmt.Sprintf("/tenancy/webhooks-verify/")
 	body := map[string]string{"verify_url": url}

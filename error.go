@@ -43,6 +43,7 @@ func (aerr *Error) Error() string {
 	return string(ret)
 }
 
+// NewError parses http response and returns Upvest error type
 func NewError(resp *http.Response) *Error {
 	p, _ := ioutil.ReadAll(resp.Body)
 
