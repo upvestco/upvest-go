@@ -28,6 +28,7 @@ func (p *Params) AddHeader(key, value string) {
 	p.Headers.Add(key, value)
 }
 
+// NewParams creates a new param object with the given auth provider
 func NewParams(auth AuthProvider) *Params {
 	return &Params{AuthProvider: auth}
 }
