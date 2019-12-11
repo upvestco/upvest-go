@@ -91,7 +91,6 @@ type HistoricalDataService struct {
 // GetTxByHash transaction (single) by txhash
 func (s *HistoricalDataService) GetTxByHash(protocol, network, txhash string) (*HDTransaction, error) {
 	u := fmt.Sprintf("/data/%s/%s/transaction/%s", protocol, network, txhash)
-	fmt.Printf("==>URL:  %+v \n\n", u)
 	p := NewParams(s.auth)
 	txn := &HDTransaction{}
 	r := &hdresult{}
