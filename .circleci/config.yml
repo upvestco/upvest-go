@@ -10,7 +10,7 @@ jobs:
       - run: mkdir -p $TEST_RESULTS
       - restore_cache: # restores saved cache if no changes are detected since last run
           keys:
-            - v1-pkg-cache
+            - pkg-cache
       - run:
           name: Provide an .env file as test config
           command: base64 -d <<< "$PLAYGROUND_ENV" > .env
