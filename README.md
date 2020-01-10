@@ -1,4 +1,4 @@
-[![GoDoc](http://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/upvestco/upvest-go) [![Build Status](https://travis-ci.org/upvestco/upvest-go.svg?branch=master)](https://travis-ci.org/upvestco/upvest-go)
+[![CircleCI](https://circleci.com/gh/upvestco/upvest-go.svg?style=svg)](https://circleci.com/gh/upvestco/upvest-go) [![GoDoc](http://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/rpip/upvest-go)
 
 # Go library for the Upvest API.
 

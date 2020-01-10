@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - checkout
+      - run:
+          name: Provide an .env file as test config
+          command: base64 -d <<< "$PLAYGROUND_ENV" > .env
+      - run: DEBUG=1 make test
+
+workflows:
+  version: 2
+  build-workflow:
+    jobs:
+      - build
