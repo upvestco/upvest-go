@@ -1,4 +1,4 @@
-module github.com/rpip/upvest-go
+module github.com/upvestco/upvest-go
 
 go 1.12
 
