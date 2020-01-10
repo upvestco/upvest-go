@@ -9,8 +9,8 @@ jobs:
       - checkout
       - run: mkdir -p $TEST_RESULTS
       - restore_cache: # restores saved cache if no changes are detected since last run
-        keys:
-          - pkg-cache
+          keys:
+            - v1-pkg-cache
       - run:
           name: Provide an .env file as test config
           command: base64 -d <<< "$PLAYGROUND_ENV" > .env
@@ -22,11 +22,11 @@ jobs:
             trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
             DEBUG=1 make test | tee ${TEST_RESULTS}/go-test.out
       - save_cache: # Store cache in the /go/pkg directory
-        key: pkg-cache
-        paths:
-          - "/go/pkg"
+          key: pkg-cache
+          paths:
+            - "/go/pkg"
       - store_test_results:
-        path: /tmp/test-results
+          path: /tmp/test-results
 
 workflows:
   version: 2
