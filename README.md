@@ -1,4 +1,4 @@
-[![GoDoc](http://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/rpip/upvest-go) [![Build Status](https://travis-ci.org/rpip/upvest-go.svg?branch=master)](https://travis-ci.org/rpip/upvest-go)
+[![GoDoc](http://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/upvestco/upvest-go) [![Build Status](https://travis-ci.org/upvestco/upvest-go.svg?branch=master)](https://travis-ci.org/upvestco/upvest-go)
 
 # Go library for the Upvest API.
 
@@ -252,4 +252,4 @@ Run a single test:
 
 For a comprehensive reference, check out the [Upvest documentation](https://doc.upvest.co).
 
-For details on all the functionality in this library, see the [GoDoc documentation](https://godoc.org/github.com/rpip/upvest-go).
+For details on all the functionality in this library, see the [GoDoc documentation](https://godoc.org/github.com/upvestco/upvest-go).
