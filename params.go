@@ -32,3 +32,5 @@ func (p *Params) AddHeader(key, value string) {
 func NewParams(auth AuthProvider) *Params {
 	return &Params{AuthProvider: auth}
 }
+
+type DataParams map[string]interface{}
