@@ -98,3 +98,33 @@ func (s *TransactionService) List(walletID string) (*TransactionList, error) {
 
 	return &TransactionList{Values: results}, nil
 }
+
+// CreateComplex creates a complex transaction
+// For more details https://doc.upvest.co/docs/complex-transactions
+func (s *TransactionService) CreateComplex(walletID string, password string, tx DataParams, fund bool) (*Transaction, error) {
+	u := fmt.Sprintf("/kms/wallets/%s/transactions/complex", walletID)
+	txn := &Transaction{} 
+	data := DataParams{"password": password, "tx": tx, "fund": fund}
+	p := &Params{}
+	p.SetAuthProvider(s.auth)
+	err := s.client.Call(http.MethodPost, u, data, txn, p)
+	return txn, err
+}
+
+// CreateRaw creates a raw transaction
+// For more details https://doc.upvest.co/docs/complex-transactions
+func (s *TransactionService) CreateRaw(walletID string, password string,
+	rawTx DataParams, fund bool, inputFormat string) (*Transaction, error) {
+	u := fmt.Sprintf("/kms/wallets/%s/transactions/raw", walletID)
+	txn := &Transaction{}
+	data := map[string]interface{}{
+		"password": password,
+		"raw_tx": rawTx,
+		"fund": fund,
+		"input_format": inputFormat,
+	}
+	p := &Params{}
+	p.SetAuthProvider(s.auth)
+	err := s.client.Call(http.MethodPost, u, data, txn, p)
+	return txn, err
+}
