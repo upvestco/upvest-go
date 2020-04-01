@@ -52,7 +52,7 @@ func createTestUser() (*User, string) {
 	uid, _ := uuid.NewUUID()
 	username := fmt.Sprintf("upvest_test_%s", uid.String())
 	password := randomString(12)
-	user, _ := tenancyTestClient.User.Create(username, password)
+	user, _ := tenancyTestClient.User.Create(username, password, []string{})
 	return user, password
 }
 

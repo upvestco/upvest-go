@@ -38,10 +38,14 @@ type ChangePasswordParams struct {
 
 // Create creates a new user
 // For more details https://doc.upvest.co/reference#tenancy_user_create
-func (s *UserService) Create(username, password string) (*User, error) {
+func (s *UserService) Create(username, password string, assetIDs []string) (*User, error) {
 	u := "/tenancy/users/"
 	usr := &User{}
-	data := map[string]string{"username": username, "password": password}
+	data := map[string]interface{}{
+		"username":  username,
+		"password":  password,
+		"asset_ids": assetIDs,
+	}
 	p := &Params{}
 	p.SetAuthProvider(s.auth)
 	err := s.client.Call(http.MethodPost, u, data, usr, p)

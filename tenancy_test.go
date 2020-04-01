@@ -13,7 +13,7 @@ import (
 func TestUserCRUD(t *testing.T) {
 	uid, _ := uuid.NewUUID()
 	username := fmt.Sprintf("upvest_test_%s", uid.String())
-	user, err := tenancyTestClient.User.Create(username, randomString(12))
+	user, err := tenancyTestClient.User.Create(username, randomString(12), []string{})
 	if err != nil {
 		t.Errorf("CREATE User returned error: %v", err)
 	}
@@ -22,6 +22,14 @@ func TestUserCRUD(t *testing.T) {
 	}
 	if user.RecoveryKit == "" {
 		t.Errorf("Expected User recovery kit to be set, got nil")
+	}
+
+	// create with assetIDs
+	username1 := fmt.Sprintf("upvest_test_%s", uid.String())
+	assetIDs := []string{}
+	_, err = tenancyTestClient.User.Create(username1, randomString(12), assetIDs)
+	if err != nil {
+		t.Errorf("CREATE User with asset IDs returned error: %v", err)
 	}
 
 	// retrieve the user

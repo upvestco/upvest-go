@@ -25,7 +25,7 @@ const (
 	DefaultBaseURL = "https://api.playground.upvest.co/"
 
 	// UserAgent used when communicating with the Upvest API.
-	UserAgent = "upvest-go/" + version
+	defaultUserAgent = "upvest-go/" + version
 
 	// APIVersion is the currently supported API version
 	APIVersion = "1.0"
@@ -51,7 +51,8 @@ type Client struct {
 	// the API Key used to authenticate all Upvest API requests
 	key string
 
-	baseURL *url.URL
+	baseURL   *url.URL
+	useragent string
 
 	logger Logger
 
@@ -100,6 +101,11 @@ func (c *Client) log(format string, a ...interface{}) {
 	if c.LoggingEnabled {
 		c.Log.Printf(format, a...)
 	}
+}
+
+// SetUA sets the useragent to the provided value
+func (c *Client) SetUA(userAgent string) {
+	c.useragent = userAgent
 }
 
 // Call actually does the HTTP request to Upvest API
@@ -151,13 +157,19 @@ func (c *Client) NewRequest(method, path string, body interface{}, params *Param
 		return nil, errors.Wrap(err, "could not create HTTP request object")
 	}
 
-	// set headers
+	// set user agent
+	if c.useragent != "" {
+		req.Header.Set("User-Agent", c.useragent)
+	} else {
+		req.Header.Set("User-Agent", defaultUserAgent)
+	}
+
+	// add in extra headers
 	if params.Headers != nil {
 		for k, v := range params.Headers {
 			req.Header.Set(k, v[0])
 		}
 	}
-	req.Header.Set("User-Agent", UserAgent)
 
 	// Get the headers from the auth provider
 	if params.AuthProvider != nil {
