@@ -86,7 +86,7 @@ type Signature struct {
 
 	// The "recover" signature component, sometimes also called "v".
 	// Since this is a small integer with less than 64 bits, this is an actual JSON integer, and NOT represented in the big integer format.
-	Recover string `json:"string"`
+	Recover string `json:"recover"`
 }
 
 // Sign signs (the hash of) data with the private key corresponding to this wallet.
