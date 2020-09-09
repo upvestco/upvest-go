@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/pkg/errors"
 )
@@ -88,8 +89,11 @@ func (s *TransactionService) List(walletID string) (*TransactionList, error) {
 
 		// append page_size param to the returned params
 		u1, err := url.Parse(transactions.Meta.Next)
+		if err != nil {
+			return nil, errors.Wrap(err, "Can not parse url")
+		}
 		q := u1.Query()
-		q.Set("page_size", string(MaxPageSize))
+		q.Set("page_size", strconv.Itoa(MaxPageSize))
 		u.RawQuery = q.Encode()
 		if transactions.Meta.Next == "" {
 			break
@@ -103,7 +107,7 @@ func (s *TransactionService) List(walletID string) (*TransactionList, error) {
 // For more details https://doc.upvest.co/docs/complex-transactions
 func (s *TransactionService) CreateComplex(walletID string, password string, tx DataParams, fund bool) (*Transaction, error) {
 	u := fmt.Sprintf("/kms/wallets/%s/transactions/complex", walletID)
-	txn := &Transaction{} 
+	txn := &Transaction{}
 	data := DataParams{"password": password, "tx": tx, "fund": fund}
 	p := &Params{}
 	p.SetAuthProvider(s.auth)
@@ -118,9 +122,9 @@ func (s *TransactionService) CreateRaw(walletID string, password string,
 	u := fmt.Sprintf("/kms/wallets/%s/transactions/raw", walletID)
 	txn := &Transaction{}
 	data := map[string]interface{}{
-		"password": password,
-		"raw_tx": rawTx,
-		"fund": fund,
+		"password":     password,
+		"raw_tx":       rawTx,
+		"fund":         fund,
 		"input_format": inputFormat,
 	}
 	p := &Params{}

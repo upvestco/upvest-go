@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/pkg/errors"
 )
@@ -100,8 +101,11 @@ func (s *WebhookService) List() (*WebhookList, error) {
 
 		// append page_size param to the returned params
 		u1, err := url.Parse(webhooks.Meta.Next)
+		if err != nil {
+			return nil, errors.Wrap(err, "Can not parse url")
+		}
 		q := u1.Query()
-		q.Set("page_size", string(MaxPageSize))
+		q.Set("page_size", strconv.Itoa(MaxPageSize))
 		u.RawQuery = q.Encode()
 		if webhooks.Meta.Next == "" {
 			break
@@ -133,8 +137,11 @@ func (s *WebhookService) ListN(count int) (*WebhookList, error) {
 
 		// append page_size param to the returned params
 		u1, err := url.Parse(webhooks.Meta.Next)
+		if err != nil {
+			return nil, errors.Wrap(err, "Can not parse url")
+		}
 		q := u1.Query()
-		q.Set("page_size", string(MaxPageSize))
+		q.Set("page_size", strconv.Itoa(MaxPageSize))
 		u.RawQuery = q.Encode()
 		if webhooks.Meta.Next == "" {
 			break
@@ -155,7 +162,7 @@ func (s *WebhookService) Delete(webhookID string) error {
 
 // Verify a webhook
 func (s *WebhookService) Verify(url string) bool {
-	u := fmt.Sprintf("/tenancy/webhooks-verify/")
+	u := "/tenancy/webhooks-verify/"
 	body := map[string]string{"verify_url": url}
 	resp := &Response{}
 	p := NewParams(s.auth)
