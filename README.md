@@ -16,8 +16,8 @@ First, create an Upvest client and depending on what action to take, you either 
 
 c := NewClient("", nil)
 
-// Configure logging using the Loggingenabled config key
-c.Loggingenabled = true
+// Configure logging using the LoggingEnabled config key
+c.LoggingEnabled = true
 ```
 
 ### Tenancy API - API Keys Authentication
@@ -29,10 +29,10 @@ Please create an API key pair within the [Upvest account management](https://log
 The default `BASE_URL` for both authentication objects is `https://api.playground.upvest.co`, but feel free to adjust it, once you retrieve your live keys. Next, create an `Tenancy` object in order to authenticate your API calls:
 
 ```go
-tenant = c.NewTenant(apiKey, apiSecret, apiPassphrase)
+tenant := c.NewTenant(apiKey, apiSecret, apiPassphrase)
 
 // create a user
-user, err := tenant.User.Create(username, randomString(12))
+user, err := tenant.User.Create(username, randomString(12), []string{})
 if err != nil {
     t.Errorf("CREATE User returned error: %v", err)
 }

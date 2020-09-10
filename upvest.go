@@ -48,13 +48,8 @@ type service struct {
 type Client struct {
 	client *http.Client // HTTP client used to communicate with the API.
 
-	// the API Key used to authenticate all Upvest API requests
-	key string
-
 	baseURL   *url.URL
 	useragent string
-
-	logger Logger
 
 	LoggingEnabled bool
 	Log            Logger
@@ -112,6 +107,9 @@ func (c *Client) SetUA(userAgent string) {
 // TODO: refactor additional params into Param struct
 func (c *Client) Call(method, path string, body, v interface{}, p *Params) error {
 	req, err := c.NewRequest(method, path, body, p)
+	if err != nil {
+		return err
+	}
 	start := time.Now()
 
 	resp, err := c.client.Do(req)
@@ -175,7 +173,8 @@ func (c *Client) NewRequest(method, path string, body interface{}, params *Param
 	if params.AuthProvider != nil {
 		authHeaders, err := params.AuthProvider.GetHeaders(method, path, body, c)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			return nil, errors.Wrap(err, "")
 		}
 		// Execute request with authenticated headers
 		for k, v := range authHeaders {
